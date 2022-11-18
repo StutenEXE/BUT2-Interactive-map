@@ -10,17 +10,22 @@ function init() {
 }
 
 function setupMap(coord) {
-    console.log(coord)
     const map = L.map('map').setView(coord, 15);
 
     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);      
+    }).addTo(map);
+    
+    L.circle(coord, {
+        radius: 20,
+        color: "#07DA63",
+        fillColor: "#07DA63",
+        fillOpacity: 1
+    }).addTo(map).bindPopup("User position");
 
     $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=fontaines-a-boire&q=&rows=10000&facet=type_objet&facet=modele&facet=commune&facet=dispo",
             (data) => {
-                console.log(data);
                 for (fontaine of data.records) {
                     L.marker([fontaine.fields.geo_shape.coordinates[1], fontaine.fields.geo_shape.coordinates[0]]).addTo(map);
                 }
