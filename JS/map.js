@@ -2,6 +2,9 @@ const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 let map;
 let tiles;
 let fontainesData;
+let zoom;
+let userCircle;
+
 $(document).ready(init);
 
 function init() {
@@ -9,7 +12,16 @@ function init() {
     
     getData();
 
-    $("#MyPosition").click(setupUserPosition)
+    $("#MyPosition").click(setupUserPosition);
+
+    zoom = {
+        start:  map.getZoom(),
+        end: map.getZoom()
+    };
+
+    map.on('zoomstart', handleZoomStart);
+    
+    map.on('zoomend', handleZoomEnd);
 }
 
 function setupMap() {
@@ -32,10 +44,12 @@ function setupMap() {
 function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    L.circle([position.coords.latitude, position.coords.longitude], {
-                        radius: 10,
-                        color: "#07DA63",
-                        fillColor: "#07DA63",
+                    userCircle = L.circle([position.coords.latitude, position.coords.longitude], {
+                        radius: 8,
+                        weight: 8,
+                        opacity: 0.3,
+                        color: "#0000FF",
+                        fillColor: "#0000FF",
                         fillOpacity: 1
                     }).addTo(map).bindPopup("User position");
                     map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 17);
@@ -56,3 +70,20 @@ function getData() {
 //         L.marker([fontaine.fields.geo_shape.coordinates[1], fontaine.fields.geo_shape.coordinates[0]]).addTo(map);
 //     }
 // });
+
+function handleZoomStart(e) {
+    zoom.start = map.getZoom();
+}
+
+// Scales user position circle to map
+function handleZoomEnd(e) {
+    zoom.end = map.getZoom();
+    if (userCircle != null) {
+        let diff = zoom.start - zoom.end;
+        if (diff > 0) {
+            userCircle.setRadius(userCircle.getRadius() * 2);
+        } else if (diff < 0) {
+            userCircle.setRadius(userCircle.getRadius() / 2);
+        }
+    }
+}
