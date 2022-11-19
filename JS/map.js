@@ -1,6 +1,7 @@
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 let map;
 let tiles;
+let arrondissements;
 let fontainesData;
 let zoom;
 let userCircle;
@@ -9,8 +10,10 @@ $(document).ready(init);
 
 function init() {
     setupMap();
-    
-    getData();
+
+    setupArrondissementPolygons();
+
+    getDataFontaines();
 
     $("#MyPosition").click(setupUserPosition);
 
@@ -41,6 +44,33 @@ function setupMap() {
     // }).addTo(map);
 }
 
+function setupArrondissementPolygons() {
+    $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=arrondissements&q=&rows=20&facet=c_ar&facet=c_arinsee&facet=l_ar",
+        (data) => {
+            arrondissements = new Array(data.records.length);
+            for (arrondissement of data.records) {
+                // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
+                let coordInv = Array(arrondissement.fields.geom.coordinates[0].length);
+                let cpt = 0;
+                for (coord of arrondissement.fields.geom.coordinates[0]) {
+                    coordInv[cpt] = [coord[1], coord[0]];
+                    cpt++;
+                }
+                console.log(Number(arrondissement.fields.c_ar) - 1);
+                // On enregistre chaque polygone
+                arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {})
+                    .addTo(map)
+                    .on("click",
+                        () => handleClickArrondissement(Number(arrondissement.fields.c_ar) - 1)
+                    )
+                    .on("mouseover",
+                        () => handleHoverArrondissement(Number(arrondissement.fields.c_ar) - 1)
+                    );
+            }
+        }
+    );
+}
+
 function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -58,7 +88,7 @@ function setupUserPosition() {
             );
 }
 
-function getData() {
+function getDataFontaines() {
     $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=fontaines-a-boire&q=&rows=10000&facet=type_objet&facet=modele&facet=commune&facet=dispo",
             (data) => fontainesData = data);
 }
@@ -86,4 +116,17 @@ function handleZoomEnd(e) {
             userCircle.setRadius(userCircle.getRadius() / 2);
         }
     }
+}
+
+function handleClickArrondissement(numArrond) {
+    map.fitBounds(arrondissements[numArrond].getBounds());
+}
+
+function handleHoverArrondissement(numArrond) {
+    arrondissements[numArrond].setStyle({
+        color: "#FF0000",
+        opacity: 1,
+        fillColor: "#FF0000",
+        opactity: 0.3
+    })
 }
