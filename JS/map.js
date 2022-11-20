@@ -1,3 +1,5 @@
+const ARRONDISSEMENT_DEFAULT_COLOR = "#ED820E";
+const ARRONDISSEMENT_HOVER_COLOR = "#FF0000";
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 let map;
@@ -31,9 +33,6 @@ function init() {
         start:  map.getZoom(),
         end: map.getZoom()
     };
-
-    map.on('zoomstart', handleZoomStart); 
-    map.on('zoomend', handleZoomEnd);
 }
 
 function setupMap() {
@@ -63,9 +62,10 @@ function setupArrondissementPolygons() {
                 
                 // On enregistre chaque polygone
                 arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
-                        opacity: 0,
-                        fillOpacity: 0,
-                        id: Number(arrondissement.fields.c_ar) - 1
+                        color: ARRONDISSEMENT_DEFAULT_COLOR,
+                        opacity: 1,
+                        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+                        fillOpacity: 0.15
                     })
                     .on("click",
                         (event) => handleClickArrondissement(event)
@@ -77,7 +77,7 @@ function setupArrondissementPolygons() {
                         (event) => handleHoverOutArrondissement(event)
                     )  
                     .addTo(map);
-                
+                // On planifie la structure pour classer les fontaines
                 fontainesData[Number(arrondissement.fields.c_ar) - 1] = {
                     arrondissement: Number(arrondissement.fields.c_ar) - 1,
                     data: []
@@ -101,11 +101,11 @@ function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
                     userCircle != null ? userCircle.remove() : null;
-                    userCircle = L.circle([position.coords.latitude, position.coords.longitude], {
+                    userCircle = L.circleMarker([position.coords.latitude, position.coords.longitude], {
                         radius: 8,
                         weight: 8,
-                        opacity: 0.3,
                         color: "#0000FF",
+                        opacity: 0.3,
                         fillColor: "#0000FF",
                         fillOpacity: 1
                     }).addTo(map).bindPopup("User position");
@@ -137,25 +137,8 @@ function getArrondPoint(point) {
     return null;
 }
 
-function handleZoomStart(e) {
-    zoom.start = map.getZoom();
-}
-
-// Scales user position circle to map
-function handleZoomEnd(e) {
-    zoom.end = map.getZoom();
-    if (userCircle != null) {
-        let diff = zoom.start - zoom.end;
-        if (diff > 0) {
-            userCircle.setRadius(userCircle.getRadius() * 2);
-        } else if (diff < 0) {
-            userCircle.setRadius(userCircle.getRadius() / 2);
-        }
-    }
-}
-
 function handleClickArrondissement(event) {
-    userCircle != null ? userCircle.remove() : null;
+    // userCircle != null ? userCircle.remove() : null;
     map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
 
     // On supprime les markers precedents
@@ -177,16 +160,19 @@ function handleClickArrondissement(event) {
 }
 
 function handleHoverInArrondissement(event) {
+    event.target.bringToFront();
     event.target.setStyle({
-        color: "#FF0000",
+        color: ARRONDISSEMENT_HOVER_COLOR,
         opacity: 1,
-        fillColor: "#FF0000",
+        fillColor: ARRONDISSEMENT_HOVER_COLOR,
         fillOpacity: 0.15
     });
 }
 function handleHoverOutArrondissement(event) {
     event.target.setStyle({
-        opacity: 0,
-        fillOpacity: 0
+        color: ARRONDISSEMENT_DEFAULT_COLOR,
+        opacity: 1,
+        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+        fillOpacity: 0.15
     });
 }
