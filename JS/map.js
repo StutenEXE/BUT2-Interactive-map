@@ -179,6 +179,7 @@ function handleClickArrondissement(event) {
     centerOfPoly = event.target.getBounds().getCenter();
     arrond = getArrondPoint([centerOfPoly.lat, centerOfPoly.lng]);
     fontainesMarkers = [];
+    if (arrond == null) arrond = 11;
     for(fontaine of fontainesData[arrond].data) {
         if(fontaine.disponible) {
             let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
