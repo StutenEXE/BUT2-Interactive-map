@@ -56,16 +56,23 @@ function setupArrondissementPolygons() {
                     coordInv[cpt] = [coord[1], coord[0]];
                     cpt++;
                 }
-                console.log(Number(arrondissement.fields.c_ar) - 1);
                 // On enregistre chaque polygone
-                arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {})
-                    .addTo(map)
+                arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
+                        opacity: 0,
+                        fillOpacity: 0,
+                        id: Number(arrondissement.fields.c_ar) - 1
+                    })
                     .on("click",
-                        () => handleClickArrondissement(Number(arrondissement.fields.c_ar) - 1)
+                        (event) => handleClickArrondissement(event)
                     )
                     .on("mouseover",
-                        () => handleHoverArrondissement(Number(arrondissement.fields.c_ar) - 1)
-                    );
+                        (event) => handleHoverInArrondissement(event)
+                    )
+                    .on("mouseout",
+                        (event) => handleHoverOutArrondissement(event)
+                    )  
+                    .addTo(map);
+                console.log(arrondissements[Number(arrondissement.fields.c_ar) - 1]) 
             }
         }
     );
@@ -74,6 +81,7 @@ function setupArrondissementPolygons() {
 function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    userCircle != null ? userCircle.remove() : null;
                     userCircle = L.circle([position.coords.latitude, position.coords.longitude], {
                         radius: 8,
                         weight: 8,
@@ -118,15 +126,22 @@ function handleZoomEnd(e) {
     }
 }
 
-function handleClickArrondissement(numArrond) {
-    map.fitBounds(arrondissements[numArrond].getBounds());
+function handleClickArrondissement(arrondissement) {
+    userCircle != null ? userCircle.remove() : null;
+    map.fitBounds(arrondissement.target.getBounds());
 }
 
-function handleHoverArrondissement(numArrond) {
-    arrondissements[numArrond].setStyle({
+function handleHoverInArrondissement(arrondissement) {
+    arrondissement.target.setStyle({
         color: "#FF0000",
         opacity: 1,
         fillColor: "#FF0000",
-        opactity: 0.3
-    })
+        fillOpacity: 0.15
+    });
+}
+function handleHoverOutArrondissement(arrondissement) {
+    arrondissement.target.setStyle({
+        opacity: 0,
+        fillOpacity: 0
+    });
 }
