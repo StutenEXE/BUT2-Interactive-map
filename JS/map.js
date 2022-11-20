@@ -136,12 +136,17 @@ function getDataFontaines() {
 
 function getArrondPoint(point) {
     for(idx = 0; idx < arrondissements.length; idx++) {
+        // sans raycasting si vous voulez tester
+        // if(arrondissements[idx].getBounds().contains(point)) {
+        //     return idx;
+        // }
         if (pointInsidePolygon(arrondissements[idx], point)) {
            return idx;
         }
     }
     return null;
 }
+
 
 // Algorithme de raycasting
 function pointInsidePolygon(poly, point) {
