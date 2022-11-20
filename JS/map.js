@@ -67,6 +67,12 @@ function setupArrondissementPolygons() {
                         fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
                         fillOpacity: 0.15
                     })
+                // arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
+                //             color: ARRONDISSEMENT_DEFAULT_COLOR,
+                //             opacity: 1,
+                //             fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+                //             fillOpacity: 0.15
+                //         })
                     .on("click",
                         (event) => handleClickArrondissement(event)
                     )
@@ -111,7 +117,7 @@ function setupUserPosition() {
                     }).addTo(map).bindPopup("User position");
                     map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 17);
                 }, 
-                (error) => console.log("Bug in user tracking")
+                (error) => console.log("User denied access to geolocation")
             );
 }
 
@@ -129,16 +135,32 @@ function getDataFontaines() {
 }
 
 function getArrondPoint(point) {
-    for(idx in arrondissements) {
-        if (arrondissements[idx].getBounds().contains(point)) {
+    for(idx = 0; idx < arrondissements.length; idx++) {
+        if (pointInsidePolygon(arrondissements[idx], point)) {
            return idx;
         }
     }
     return null;
 }
 
+// Algorithme de raycasting
+function pointInsidePolygon(poly, point) {
+    let polyPoints = poly.getLatLngs()[0];       
+    let x = point[0], y = point[1];
+
+    let inside = false;
+    for (i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+        let xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+        let xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+        let intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+};
+
 function handleClickArrondissement(event) {
-    // userCircle != null ? userCircle.remove() : null;
     map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
 
     // On supprime les markers precedents
@@ -149,7 +171,8 @@ function handleClickArrondissement(event) {
     } 
 
     // On affiche les fontaines dans l'arrondissement choisi
-    arrond = getArrondPoint(event.target.getCenter());
+    centerOfPoly = event.target.getBounds().getCenter();
+    arrond = getArrondPoint([centerOfPoly.lat, centerOfPoly.lng]);
     fontainesMarkers = [];
     for(fontaine of fontainesData[arrond].data) {
         if(fontaine.disponible) {
@@ -168,6 +191,7 @@ function handleHoverInArrondissement(event) {
         fillOpacity: 0.15
     });
 }
+
 function handleHoverOutArrondissement(event) {
     event.target.setStyle({
         color: ARRONDISSEMENT_DEFAULT_COLOR,
