@@ -10,6 +10,8 @@ let fontainesData;
 let fontainesMarkers;
 let zoom;
 let userCircle;
+let lastArrondChosen;
+let showUnavailable = false;
 
 // Constructeur d'une fontaine dans un arrondissement
 function Fontaine(fontaine) {
@@ -172,23 +174,21 @@ function pointInsidePolygon(poly, point) {
     return inside;
 };
 
-function handleClickArrondissement(event) {
-    map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
-
-    // On supprime les markers precedents
+function removeFountainMarkers() {
     if (fontainesMarkers!=null) {
         for(marker of fontainesMarkers) {
             map.removeLayer(marker);
         }
     } 
+}
 
-    // On affiche les fontaines dans l'arrondissement choisi
-    centerOfPoly = event.target.getBounds().getCenter();
+function showFountainMarkersInArrond(arrond) {
+    centerOfPoly = arrond.getBounds().getCenter();
     arrond = getArrondPoint([centerOfPoly.lat, centerOfPoly.lng]);
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for(fontaine of fontainesData[arrond].data) {
-        if(fontaine.disponible) {
+        if(showUnavailable || fontaine.disponible) {
             let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
             .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
                         <br>
@@ -196,6 +196,17 @@ function handleClickArrondissement(event) {
             fontainesMarkers.push(marker);
         }
     }
+}
+
+function handleClickArrondissement(event) {
+    map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
+
+    // On supprime les markers precedents
+    removeFountainMarkers()
+
+    // On affiche les fontaines dans l'arrondissement choisi
+    lastArrondChosen = event.target
+    showFountainMarkersInArrond(event.target)
 }
 
 function handleHoverInArrondissement(event) {
@@ -215,4 +226,18 @@ function handleHoverOutArrondissement(event) {
         fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
         fillOpacity: 0.15
     });
+}
+
+function handleClickToggleMarkersDispo() {
+    showUnavailable = !showUnavailable
+    if (showUnavailable) {
+        $("#ButtonToggleMarkersDispo > .togglableText").html("Hide")
+    } 
+    else  {
+        $("#ButtonToggleMarkersDispo > .togglableText").html("Show")
+    }
+    if (lastArrondChosen != null) {
+        removeFountainMarkers();
+        showFountainMarkersInArrond(lastArrondChosen);
+    }
 }
