@@ -2,6 +2,7 @@ const ARRONDISSEMENT_DEFAULT_COLOR = "#ED820E";
 const ARRONDISSEMENT_HOVER_COLOR = "#FF0000";
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
+
 let map;
 let tiles;
 let arrondissements;
@@ -11,9 +12,13 @@ let zoom;
 let userCircle;
 
 // Constructeur d'une fontaine dans un arrondissement
-function Fontaine(geoJSONData, disponible) {
-    this.geoJSONData = geoJSONData;
-    this.disponible = disponible=="OUI"?true:false;
+function Fontaine(fontaine) {
+    this.geoJSONData = fontaine.geo_shape;
+    this.disponible = fontaine.dispo=="OUI"?true:false;
+    this.rue = fontaine.voie//.toUpper();
+    if (fontaine.no_voirie_impair != undefined) this.num_voirie = fontaine.no_voirie_impair
+    else if(fontaine.no_voirie_pair != undefined) this.num_voirie = fontaine.no_voirie_pair;
+    else this.num_voirie = null;
 }
 
 $(document).ready(init);
@@ -61,18 +66,19 @@ function setupArrondissementPolygons() {
                 let coordInv = invertCoordList(arrondissement.fields.geom.coordinates[0]);
                 
                 // On enregistre chaque polygone
+                // La methon geoJSON nous evite de devoir inverser les coordonnées mais n'a pas de LatLgs
+                // arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
+                //     color: ARRONDISSEMENT_DEFAULT_COLOR,
+                //     opacity: 1,
+                //     fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+                //     fillOpacity: 0.15
+                // })  
                 arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
                         color: ARRONDISSEMENT_DEFAULT_COLOR,
                         opacity: 1,
                         fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
                         fillOpacity: 0.15
                     })
-                // arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
-                //             color: ARRONDISSEMENT_DEFAULT_COLOR,
-                //             opacity: 1,
-                //             fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-                //             fillOpacity: 0.15
-                //         })
                     .on("click",
                         (event) => handleClickArrondissement(event)
                     )
@@ -83,6 +89,7 @@ function setupArrondissementPolygons() {
                         (event) => handleHoverOutArrondissement(event)
                     )  
                     .addTo(map);
+
                 // On planifie la structure pour classer les fontaines
                 fontainesData[Number(arrondissement.fields.c_ar) - 1] = {
                     arrondissement: Number(arrondissement.fields.c_ar) - 1,
@@ -128,7 +135,7 @@ function getDataFontaines() {
                     arrond = getArrondPoint(fontaine.fields.geo_point_2d)
                     if (arrond != null) {
                         fontainesData[arrond].
-                        data.push(new Fontaine(fontaine.fields.geo_shape, fontaine.fields.dispo));
+                        data.push((new Fontaine(fontaine.fields)));
                     }
                 }
             });
@@ -182,7 +189,10 @@ function handleClickArrondissement(event) {
     if (arrond == null) arrond = 11;
     for(fontaine of fontainesData[arrond].data) {
         if(fontaine.disponible) {
-            let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
+            let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
+            .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
+                        <br>
+                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }`);
             fontainesMarkers.push(marker);
         }
     }
