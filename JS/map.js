@@ -5,7 +5,7 @@ const NB_ARRONDISSEMENT_PARIS = 20;
 
 let map;
 let tiles;
-let arrondissements;
+let arrondissementsPoly;
 let fontainesData;
 let fontainesMarkers;
 let zoom;
@@ -13,7 +13,17 @@ let userCircle;
 let lastArrondChosen;
 let showUnavailable = false;
 
+
+let geocodeService;
 // Constructeur d'une fontaine dans un arrondissement
+/*
+    fontaine: {
+        geo_shape: GeoJSONObject,
+        dispo: "OUI"|"NON",
+        voie: string,
+        no_voirie_impair | *_*_pair: string
+    }
+*/
 function Fontaine(fontaine) {
     this.geoJSONData = fontaine.geo_shape;
     this.disponible = fontaine.dispo=="OUI"?true:false;
@@ -53,6 +63,8 @@ function setupMap() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
+    map.on("dblclick", (event) => createNewFountain(event))
+
     // Map realiste
     // tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -62,20 +74,13 @@ function setupMap() {
 function setupArrondissementPolygons() {
     $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=arrondissements&q=&rows=20&facet=c_ar&facet=c_arinsee&facet=l_ar",
         (data) => {
-            arrondissements = new Array(data.records.length);
+            
+            arrondissementsPoly = new Array(data.records.length);
             for (arrondissement of data.records) {
                 // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
                 let coordInv = invertCoordList(arrondissement.fields.geom.coordinates[0]);
                 
-                // On enregistre chaque polygone
-                // La methon geoJSON nous evite de devoir inverser les coordonnées mais n'a pas de LatLgs
-                // arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
-                //     color: ARRONDISSEMENT_DEFAULT_COLOR,
-                //     opacity: 1,
-                //     fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-                //     fillOpacity: 0.15
-                // })  
-                arrondissements[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
+                arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
                         color: ARRONDISSEMENT_DEFAULT_COLOR,
                         opacity: 1,
                         fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
@@ -144,12 +149,12 @@ function getDataFontaines() {
 }
 
 function getArrondPoint(point) {
-    for(idx = 0; idx < arrondissements.length; idx++) {
+    for(idx = 0; idx < arrondissementsPoly.length; idx++) {
         // sans raycasting si vous voulez tester
-        // if(arrondissements[idx].getBounds().contains(point)) {
+        // if(arrondissementsPoly[idx].getBounds().contains(point)) {
         //     return idx;
         // }
-        if (pointInsidePolygon(arrondissements[idx], point)) {
+        if (pointInsidePolygon(arrondissementsPoly[idx], point)) {
            return idx;
         }
     }
@@ -189,24 +194,32 @@ function showFountainMarkersInArrond(arrond) {
     if (arrond == null) arrond = 11;
     for(fontaine of fontainesData[arrond].data) {
         if(showUnavailable || fontaine.disponible) {
-            let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
-            .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
-                        <br>
-                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }`);
-            fontainesMarkers.push(marker);
+            createFountainMarker(fontaine);
         }
     }
 }
 
+function createFountainMarker(fontaine) {
+    console.log(fontaine.geoJSONData)
+
+    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
+            .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
+                        <br>
+                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }`);
+    fontainesMarkers.push(marker);
+}
+
 function handleClickArrondissement(event) {
     map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
+    
+    if (lastArrondChosen != event.target) {
+        // On supprime les markers precedents
+        removeFountainMarkers();
 
-    // On supprime les markers precedents
-    removeFountainMarkers()
-
-    // On affiche les fontaines dans l'arrondissement choisi
-    lastArrondChosen = event.target
-    showFountainMarkersInArrond(event.target)
+        // On affiche les fontaines dans l'arrondissement choisi
+        lastArrondChosen = event.target;
+        showFountainMarkersInArrond(event.target);
+    }
 }
 
 function handleHoverInArrondissement(event) {
@@ -239,5 +252,47 @@ function handleClickToggleMarkersDispo() {
     if (lastArrondChosen != null) {
         removeFountainMarkers();
         showFountainMarkersInArrond(lastArrondChosen);
+    }
+}
+
+function createNewFountain(event) {
+    activateGeoCodeService();
+
+    point = [event.latlng.lat, event.latlng.lng];
+    arrond = getArrondPoint(point);
+
+    geoPoint = [event.latlng.lng, event.latlng.lat];
+     
+    if (arrond != null) {
+        geocodeService.reverse().latlng(event.latlng).run(function (error, result) {
+            if (error) {
+            return;
+            }
+
+            voie = result.address.Match_addr.split(",")[0] != null ?
+                    result.address.Match_addr.split(",")[0] : result.address.Match_addr;
+            newFountain  = new Fontaine({
+                geo_shape:  { coordinates: geoPoint,
+                    type: "Point"
+                },
+                dispo: "OUI",
+                voie: voie,
+                no_voirie_impair: null
+            });
+
+            fontainesData[arrond].data.push(newFountain);
+
+            console.log(newFountain);
+
+            createFountainMarker(newFountain);
+        });
+    }
+}
+
+function activateGeoCodeService() {
+    if (geocodeService == null) {
+        geocodeService = L.esri.Geocoding.geocodeService({
+            apikey: "AAPK56a058469da84b49ab85187815497bccIz0_IwPeerd6C4ta8ta2SF-i8qmCEOftByx8qRKLaIh_RgB4NvMb1nrXPtYr2Ks2" // replace with your api key - https://developers.arcgis.com
+        });
     }
 }
