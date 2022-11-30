@@ -2,6 +2,16 @@ const ARRONDISSEMENT_DEFAULT_COLOR = "#ED820E";
 const ARRONDISSEMENT_HOVER_COLOR = "#FF0000";
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
+const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
+
+let customIcon =  {
+    iconUrl: 'images/red-marker.png',
+    iconSize: [38, 95],
+    iconAnchor: [22, 94],
+    popupAnchor: [-3, -76],
+    shadowSize: [68, 95],
+    shadowAnchor: [22, 94]
+};
 
 let map;
 let tiles;
@@ -24,14 +34,16 @@ let geocodeService;
         no_voirie_impair | *_*_pair: string
     }
 */
-function Fontaine(fontaine) {
+function Fontaine(fontaine, isDefault) {
     this.geoJSONData = fontaine.geo_shape;
     this.disponible = fontaine.dispo=="OUI"?true:false;
+
     this.rue = " ";
     if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
     else if(fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
+    this.rue += " " + fontaine.voie.toUpperCase();
 
-    this.rue += " " + fontaine.voie//.toUpper();
+    this.isDefault = isDefault;
 }
 
 $(document).ready(init);
@@ -59,9 +71,9 @@ function setupMap() {
         zoom: 12
     });
 
-    tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    tiles = L.tileLayer(`https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}.png?access-token=${ JAWG_TOKEN }`, {
+        attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib">&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>',
         maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
 
@@ -146,7 +158,7 @@ function getDataFontaines() {
                     arrond = getArrondPoint(fontaine.fields.geo_point_2d)
                     if (arrond != null) {
                         fontainesData[arrond].
-                        data.push((new Fontaine(fontaine.fields)));
+                        data.push((new Fontaine(fontaine.fields, true)));
                     }
                 }
             });
@@ -206,8 +218,10 @@ function showFountainMarkersInArrond(arrond) {
 function createFountainMarker(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
     // console.log(fontaine.geoJSONData)
-
-    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
+    let myIcon = L.icon(customIcon);
+    let marker = L.geoJSON(fontaine.geoJSONData, { 
+        style: (feature) => {return {icon: myIcon}}
+    }).addTo(map);
 
     createFountainMarkerText(marker, arrond, idx);
 
@@ -278,12 +292,12 @@ function createNewFountain(event) {
                     result.address.Match_addr.split(",")[0] : result.address.Match_addr;
             newFountain  = new Fontaine({
                 geo_shape:  { coordinates: geoPoint,
-                    type: "Point"
-                },
+                              type: "Point"
+                        },
                 dispo: "OUI",
                 voie: voie,
                 no_voirie_impair: null
-            });
+            }, false);
 
             fontainesData[arrond].data.push(newFountain);
 
