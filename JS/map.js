@@ -287,7 +287,7 @@ function createNewFountain(event) {
 
             fontainesData[arrond].data.push(newFountain);
 
-            createFountainMarker(newFountain);
+            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
         });
     }
 }
