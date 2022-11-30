@@ -1,5 +1,19 @@
 const ARRONDISSEMENT_DEFAULT_COLOR = "#ED820E";
 const ARRONDISSEMENT_HOVER_COLOR = "#FF0000";
+
+const POLY_STYLE_SELECTED = {
+    color: ARRONDISSEMENT_HOVER_COLOR,
+    opacity: 1,
+    fillColor: ARRONDISSEMENT_HOVER_COLOR,
+    fillOpacity: 0.15
+}
+const POLY_STYLE_DEFAULT = {
+    color: ARRONDISSEMENT_DEFAULT_COLOR,
+    opacity: 1,
+    fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+    fillOpacity: 0.15
+}
+
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
@@ -32,7 +46,7 @@ function Fontaine(fontaine, isDefault) {
     this.rue = " ";
     if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
     else if(fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
-    this.rue += " " + fontaine.voie.toUpperCase();
+    this.rue += " " + fontaine.voie//.toUpperCase();
 
     this.isDefault = isDefault;
 }
@@ -87,21 +101,12 @@ function setupArrondissementPolygons() {
                 // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
                 let coordInv = invertCoordList(arrondissement.fields.geom.coordinates[0]);
                 
-                arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
-                        color: ARRONDISSEMENT_DEFAULT_COLOR,
-                        opacity: 1,
-                        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-                        fillOpacity: 0.15
-                    })
-                    .on("click",
-                        (event) => handleClickArrondissement(event)
-                    )
-                    .on("mouseover",
-                        (event) => handleHoverInArrondissement(event)
-                    )
-                    .on("mouseout",
-                        (event) => handleHoverOutArrondissement(event)
-                    )  
+                arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, POLY_STYLE_DEFAULT)
+                    .on({
+                    "click": (event) => handleClickArrondissement(event),
+                    "mouseover": (event) => handleHoverInArrondissement(event),
+                    "mouseout": (event) => handleHoverOutArrondissement(event)
+                    })  
                     .addTo(map);
 
                 // On planifie la structure pour classer les fontaines
@@ -217,35 +222,38 @@ function createFountainMarker(arrond, idx) {
 }
 
 function handleClickArrondissement(event) {
-    map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
-    
     if (lastArrondChosen != event.target) {
+        // We put the last chosen poly back to it's default state
+        if (lastArrondChosen != null) lastArrondChosen.setStyle(POLY_STYLE_DEFAULT);
+
+        // We fit the arrondissement 
+        map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
+        
         // On supprime les markers precedents
         removeFountainMarkers();
 
-        // On affiche les fontaines dans l'arrondissement choisi
+        
         lastArrondChosen = event.target;
-        showFountainMarkersInArrond(event.target);
+        lastArrondChosen.setStyle(POLY_STYLE_SELECTED);
+
+        // On affiche les fontaines dans l'arrondissement choisi
+        showFountainMarkersInArrond(lastArrondChosen);
     }
 }
 
 function handleHoverInArrondissement(event) {
     event.target.bringToFront();
-    event.target.setStyle({
-        color: ARRONDISSEMENT_HOVER_COLOR,
-        opacity: 1,
-        fillColor: ARRONDISSEMENT_HOVER_COLOR,
-        fillOpacity: 0.15
-    });
+    event.target.setStyle(POLY_STYLE_SELECTED);
 }
 
 function handleHoverOutArrondissement(event) {
-    event.target.setStyle({
-        color: ARRONDISSEMENT_DEFAULT_COLOR,
-        opacity: 1,
-        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-        fillOpacity: 0.15
-    });
+    if (event.target != lastArrondChosen) {
+        event.target.setStyle(POLY_STYLE_DEFAULT);
+        event.target.bringToBack();
+    }
+    else {
+        event.target.bringToFront();
+    }
 }
 
 function handleClickToggleMarkersDispo() {
