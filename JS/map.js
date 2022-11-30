@@ -4,15 +4,6 @@ const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
 
-let customIcon =  {
-    iconUrl: 'images/red-marker.png',
-    iconSize: [38, 95],
-    iconAnchor: [22, 94],
-    popupAnchor: [-3, -76],
-    shadowSize: [68, 95],
-    shadowAnchor: [22, 94]
-};
-
 let map;
 let tiles;
 let arrondissementsPoly;
@@ -218,10 +209,7 @@ function showFountainMarkersInArrond(arrond) {
 function createFountainMarker(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
     // console.log(fontaine.geoJSONData)
-    let myIcon = L.icon(customIcon);
-    let marker = L.geoJSON(fontaine.geoJSONData, { 
-        style: (feature) => {return {icon: myIcon}}
-    }).addTo(map);
+    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
 
     createFountainMarkerText(marker, arrond, idx);
 
