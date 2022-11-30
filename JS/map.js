@@ -27,10 +27,11 @@ let geocodeService;
 function Fontaine(fontaine) {
     this.geoJSONData = fontaine.geo_shape;
     this.disponible = fontaine.dispo=="OUI"?true:false;
-    this.rue = fontaine.voie//.toUpper();
-    if (fontaine.no_voirie_impair != undefined) this.num_voirie = fontaine.no_voirie_impair
-    else if(fontaine.no_voirie_pair != undefined) this.num_voirie = fontaine.no_voirie_pair;
-    else this.num_voirie = null;
+    this.rue = " ";
+    if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
+    else if(fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
+
+    this.rue += " " + fontaine.voie//.toUpper();
 }
 
 $(document).ready(init);
@@ -63,6 +64,9 @@ function setupMap() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
+
+    // On retire le dblclick zoom et on le remplace
+    map.doubleClickZoom.disable(); 
     map.on("dblclick", (event) => createNewFountain(event))
 
     // Map realiste
@@ -192,20 +196,21 @@ function showFountainMarkersInArrond(arrond) {
     arrond = getArrondPoint([centerOfPoly.lat, centerOfPoly.lng]);
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
-    for(fontaine of fontainesData[arrond].data) {
-        if(showUnavailable || fontaine.disponible) {
-            createFountainMarker(fontaine);
+    for(idx in fontainesData[arrond].data) {
+        if(showUnavailable || fontainesData[arrond].data[idx].disponible) {
+            createFountainMarker(arrond, idx);
         }
     }
 }
 
-function createFountainMarker(fontaine) {
-    console.log(fontaine.geoJSONData)
+function createFountainMarker(arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    // console.log(fontaine.geoJSONData)
 
-    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
-            .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
-                        <br>
-                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }`);
+    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
+
+    createFountainMarkerText(marker, arrond, idx);
+
     fontainesMarkers.push(marker);
 }
 
@@ -282,8 +287,6 @@ function createNewFountain(event) {
 
             fontainesData[arrond].data.push(newFountain);
 
-            console.log(newFountain);
-
             createFountainMarker(newFountain);
         });
     }
@@ -295,4 +298,21 @@ function activateGeoCodeService() {
             apikey: "AAPK56a058469da84b49ab85187815497bccIz0_IwPeerd6C4ta8ta2SF-i8qmCEOftByx8qRKLaIh_RgB4NvMb1nrXPtYr2Ks2" // replace with your api key - https://developers.arcgis.com
         });
     }
+}
+
+function createFountainMarkerText(marker, arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    marker.bindPopup(`<b>${ fontaine.rue }</b>
+                        <br>
+                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }
+                        <button onclick="toggleDispoFontaine(${ arrond }, ${ idx })">
+                        Rendre ${ fontaine.disponible ? "indisponible" : "disponible"  }</button>`);
+}
+
+function toggleDispoFontaine(arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    console.log("clicked for " + arrond + " -> " + idx);
+    fontaine.disponible = !fontaine.disponible;
+    removeFountainMarkers();
+    showFountainMarkersInArrond(lastArrondChosen);
 }
