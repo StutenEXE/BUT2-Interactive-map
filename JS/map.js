@@ -339,7 +339,6 @@ function createFountainMarkerText(marker, arrond, idx) {
     marker.bindPopup(`
                     <div class="popup-${ fontaine.disponible ? "dispo" : "indispo"  }">
                         <b>${ fontaine.rue }</b>
-                        <br>
                         <div class="popup-info">
                             <p> Disponible : <span class="status">${ fontaine.disponible ? "OUI" : "NON" }</span> </p> 
                             <button class="popup-btn" onclick="toggleDispoFontaine(${ arrond }, ${ idx })">
