@@ -1,0 +1,93 @@
+:root {
+    --bgColor: #272838;
+    --textColor: #cecece;
+
+    --availableColor: #00AEEF;
+    --unavailableColor: #FF2700;
+
+    /* --availableStatusColor: #42f242;
+    --unavailableStatusColor: #FF2700; */
+}
+
+.leaflet-popup-content-wrapper, 
+.leaflet-popup-tip {
+    background-color: var(--bgColor);
+}
+
+.popup-dispo, .popup-indispo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popup-dispo {
+    color: var(--textColor);
+}
+
+.popup-indispo {
+    color: var(--textColor);
+}
+
+.popup-info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    /* gap: 15px; */
+}
+.status {
+    border-radius: 4px;
+    padding: 3px;
+    font-weight: 900;
+    color: var(--bgColor);
+}
+
+.popup-dispo .status {
+    background-color: var(--availableColor);
+}
+
+.popup-indispo .status {
+    background-color: var(--unavailableColor);
+}
+
+.popup-btn {
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+.popup-dispo .popup-btn,
+.popup-indispo .popup-btn {
+    background-size: 200%;
+    transition: background-position .3s cubic-bezier(.47, .1, 1, .63),
+      color .2s linear;
+    transition-delay: 0.0s, 0.15s;
+}
+
+.popup-dispo .popup-btn:hover,
+.popup-indispo .popup-btn:hover {
+    cursor: pointer;
+    background-position: -100% 100%;
+}
+
+/* DISPONIBLE -> INDISPONIBLE */
+.popup-dispo .popup-btn {
+    background-image: linear-gradient(90deg,
+        var(--availableColor) 0%,
+        var(--availableColor) 50%,
+        var(--unavailableColor) 50%,
+        var(--unavailableColor) 100%);
+}
+
+
+/* INDISPONIBLE -> DISPONIBLE */
+.popup-indispo .popup-btn {
+    background-image: linear-gradient(90deg,
+        var(--unavailableColor) 0%,
+        var(--unavailableColor) 50%,
+        var(--availableColor) 50%,
+        var(--availableColor) 100%);
+}

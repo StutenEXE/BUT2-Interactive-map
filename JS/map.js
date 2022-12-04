@@ -336,11 +336,19 @@ function activateGeoCodeService() {
 
 function createFountainMarkerText(marker, arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    marker.bindPopup(`<b>${ fontaine.rue }</b>
+    marker.bindPopup(`
+                    <div class="popup-${ fontaine.disponible ? "dispo" : "indispo"  }">
+                        <b>${ fontaine.rue }</b>
                         <br>
-                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }
-                        <button onclick="toggleDispoFontaine(${ arrond }, ${ idx })">
-                        Rendre ${ fontaine.disponible ? "indisponible" : "disponible"  }</button>`);
+                        <div class="popup-info">
+                            <p> Disponible : <span class="status">${ fontaine.disponible ? "OUI" : "NON" }</span> </p> 
+                            <button class="popup-btn" onclick="toggleDispoFontaine(${ arrond }, ${ idx })">
+                                Rendre ${ fontaine.disponible ? "indisponible" : "disponible"  }
+                            </button>
+                        </div>
+                    </div>`), {
+                        className: "popup"
+                    };
 }
 
 function toggleDispoFontaine(arrond, idx) {
