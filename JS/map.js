@@ -14,6 +14,20 @@ const POLY_STYLE_DEFAULT = {
     fillOpacity: 0.15
 }
 
+const MARKER_AVAILABLE_STYLE = {
+    iconSize: [25, 38],
+    iconAnchor: [12.5, 38],
+    popupAnchor: [0, -34],
+    iconUrl: "./images/available-marker.png"
+};
+
+const MARKER_UNAVAILABLE_STYLE = {
+    iconSize: [25, 38],
+    iconAnchor: [12.5, 38],
+    popupAnchor: [0, -34],
+    iconUrl: "./images/unavailable-marker.png"
+};
+
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
@@ -101,6 +115,10 @@ function setupArrondissementPolygons() {
                 // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
                 let coordInv = invertCoordList(arrondissement.fields.geom.coordinates[0]);
                 
+                // Evite d'inverser les coords mais cause d'autres problemes sur d'autres fctions
+                // arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
+                //     pointToLayer: (feature, latlng) => { return L.polygon(latlng, POLY_STYLE_DEFAULT); }
+                // })
                 arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, POLY_STYLE_DEFAULT)
                     .on({
                     "click": (event) => handleClickArrondissement(event),
@@ -213,8 +231,14 @@ function showFountainMarkersInArrond(arrond) {
 
 function createFountainMarker(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    // console.log(fontaine.geoJSONData)
-    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map);
+
+    let iconStyle;
+    if (fontaine.disponible) iconStyle = L.icon(MARKER_AVAILABLE_STYLE);
+    else iconStyle = L.icon(MARKER_UNAVAILABLE_STYLE);
+    
+    let marker = L.geoJSON(fontaine.geoJSONData, {
+        pointToLayer: (feature, latlng) => { return L.marker(latlng, {icon: iconStyle}); }
+    }).addTo(map);
 
     createFountainMarkerText(marker, arrond, idx);
 
