@@ -84,6 +84,8 @@ function init() {
         start:  map.getZoom(),
         end: map.getZoom()
     };
+
+    currentRoute = new L.LayerGroup();
 }
 
 function setupMap() {
@@ -101,7 +103,7 @@ function setupMap() {
     // On retire le dblclick zoom et on le remplace
     map.doubleClickZoom.disable(); 
     map.on("dblclick", (event) => createNewFountain(event))
-    
+
     // Map realiste
     // tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -412,7 +414,9 @@ function getClosestFountain(arrond) {
 }
 
 function calculateRouteFromPosition(nearestFountainCoord) {
+
     deleteCurrentRoute();
+
     var router = routingService.getRoutingService(null, 8),
         routeRequestParams = {
           routingMode: 'fast',
@@ -438,6 +442,9 @@ function onSuccessfulRoute(result) {
 
     addTrajectoryToMap(route);
     addStepsToMap(route);
+
+    currentRoute.setZIndex(100000000);
+    map.addLayer(currentRoute, true);
 }  
 
 function onErrorRoute(error) {
@@ -450,14 +457,16 @@ function addTrajectoryToMap(route) {
                               .fromFlexiblePolyline(section.polyline);
         let polyline = []
         linestring.eachLatLngAlt((lat, lng, alt, idx) => polyline.push([lat, lng]));
-        currentRoute.push(L.polyline(polyline, {
-                    weight: 4,
-                    color: "#0000FF",
-                    opacity: 0.75,
-                }).addTo(map));
+        polyline = L.polyline(polyline, {
+                weight: 4,
+                color: "#0000FF",
+                opacity: 0.75,
+            }
+        );
+        currentRoute.addLayer(polyline);
 
         // zoom the map to the polyline
-        map.fitBounds(currentRoute[0].getBounds());
+        map.fitBounds(polyline.getBounds());
     });
 }
 
@@ -465,22 +474,20 @@ function addStepsToMap(route) {
     route.sections.forEach((section) => {
         let poly = H.geo.LineString.fromFlexiblePolyline(section.polyline).getLatLngAltArray();
 
-        console.log(section);
+        var stepIcon = L.icon({
+            iconSize: [20, 20],
+            iconUrl: './images/route-step-marker.png',
+        });
 
         // Add a marker for each maneuver
         for (action of section.actions) {
-            currentRoute.push(
-                new L.CircleMarker([
+            currentRoute.addLayer(
+                new L.Marker([
                     poly[action.offset * 3],
                     poly[action.offset * 3 + 1]
-                ], {
-                    radius: 6,
-                    color: "#1111AA",
-                    opacity: 1,
-                    fillColor: "0000FF",
-                    fillOpacity: 1
+                ], {  
+                    icon: stepIcon
                 })
-                .addTo(map)
                 .bindPopup(action.instruction)
             );
         }
@@ -489,8 +496,5 @@ function addStepsToMap(route) {
 
 function deleteCurrentRoute() {
     // We delete the previous route
-    if (currentRoute != null && currentRoute.length > 0 ) {
-        currentRoute.forEach((elem) => elem.remove());
-    }
-    currentRoute = [];
+    currentRoute.clearLayers();
 }
