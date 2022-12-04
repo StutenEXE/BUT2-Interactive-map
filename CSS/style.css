@@ -6,8 +6,6 @@ html, body {
 .leaflet-container {
     height: inherit;
     width: inherit;
-    /* max-width: 100%;
-    max-height: 100%; */
 }
 #MapContainer {
     position: relative;
@@ -32,7 +30,6 @@ html, body {
 
 #MyPosition:hover {
     filter: invert(100%);
-    /* background-color: #000; */
 }
 
 #Toolbar {
@@ -44,6 +41,11 @@ html, body {
     width: 120px;
     padding: 10px;
     background-color: rgba(220,220,220,0.75);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 #Toolbar > * {

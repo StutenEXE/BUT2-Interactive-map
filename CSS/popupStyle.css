@@ -12,20 +12,13 @@
 .leaflet-popup-content-wrapper, 
 .leaflet-popup-tip {
     background-color: var(--bgColor);
+    color: var(--textColor);
 }
 
 .popup-dispo, .popup-indispo {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.popup-dispo {
-    color: var(--textColor);
-}
-
-.popup-indispo {
-    color: var(--textColor);
 }
 
 .popup-info {

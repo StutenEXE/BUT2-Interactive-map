@@ -39,8 +39,10 @@ let fontainesData;
 let fontainesMarkers;
 let zoom;
 let userCircle;
+let userPosition;
 let lastArrondChosen;
 let showUnavailable = false;
+let currentRoute;
 
 
 let geocodeService;
@@ -76,7 +78,7 @@ function init() {
 
     getDataFontaines();
 
-    $("#MyPosition").click(setupUserPosition);
+    $("#MyPosition").click(() => setupUserPosition());
 
     zoom = {
         start:  map.getZoom(),
@@ -99,7 +101,7 @@ function setupMap() {
     // On retire le dblclick zoom et on le remplace
     map.doubleClickZoom.disable(); 
     map.on("dblclick", (event) => createNewFountain(event))
-
+    
     // Map realiste
     // tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -150,19 +152,25 @@ function invertCoordList(list) {
 function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    userCircle != null ? userCircle.remove() : null;
-                    userCircle = L.circleMarker([position.coords.latitude, position.coords.longitude], {
-                        radius: 8,
-                        weight: 8,
-                        color: "#0000FF",
-                        opacity: 0.3,
-                        fillColor: "#0000FF",
-                        fillOpacity: 1
-                    }).addTo(map).bindPopup("User position");
-                    map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 17);
+                    // userPosition = [position.coords.latitude, position.coords.longitude];
+                    userPosition = [48.84223513100503, 2.2679049153440825]
+                    putUserCircleMarker(true);
                 }, 
                 (error) => console.log("User denied access to geolocation")
             );
+}
+
+function putUserCircleMarker(showPos) {
+    userCircle != null ? userCircle.remove() : null;
+    userCircle = L.circleMarker(userPosition, {
+        radius: 8,
+        weight: 8,
+        color: "#0000FF",
+        opacity: 0.3,
+        fillColor: "#0000FF",
+        fillOpacity: 1
+    }).addTo(map).bindPopup("User position");
+    if (showPos) map.setView(userPosition, 17);
 }
 
 function getDataFontaines() {
@@ -194,7 +202,7 @@ function getArrondPoint(point) {
 
 // Algorithme de raycasting
 function pointInsidePolygon(poly, point) {
-    let polyPoints = poly.getLatLngs()[0];       
+    let polyPoints = poly.getLatLngs()[0];   
     let x = point[0], y = point[1];
 
     let inside = false;
@@ -352,8 +360,137 @@ function createFountainMarkerText(marker, arrond, idx) {
 
 function toggleDispoFontaine(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    console.log("clicked for " + arrond + " -> " + idx);
     fontaine.disponible = !fontaine.disponible;
     removeFountainMarkers();
     showFountainMarkersInArrond(lastArrondChosen);
+}
+
+async function handleClickRouting() {
+    navigator.geolocation.getCurrentPosition((position) => {
+        // userPosition = [position.coords.latitude, position.coords.longitude];
+        userPosition = [48.84223513100503, 2.2679049153440825]
+        putUserCircleMarker(false);
+
+        let arrond = getArrondPoint(userPosition);
+
+        if (arrond == null) alert("Vous n'êtes pas à Paris !") 
+        else {
+            // We find the closest point from the user
+            closestFountain = getClosestFountain(arrond);
+            showFountainMarkersInArrond(arrondissementsPoly[arrond]);
+            lastArrondChosen = arrondissementsPoly[arrond];
+            calculateRouteFromPosition([closestFountain.geoJSONData.coordinates[1],
+                                        closestFountain.geoJSONData.coordinates[0]]);
+        }
+    });
+}
+
+var routingService = new H.service.Platform({
+    apikey: "tSrrfY12xrYTQcKrFINr0Wd8DeI8DCRAcdnjuprI_xE"
+});
+
+function getClosestFountain(arrond) {
+    let minDistance = distanceBetweenTwoPoints([
+        fontainesData[arrond].data[0].geoJSONData.coordinates[1],
+        fontainesData[arrond].data[0].geoJSONData.coordinates[0]
+    ], userPosition);
+
+    let closestFountain = fontainesData[arrond].data[0];
+    for(fontaine of fontainesData[arrond].data) {
+        if (fontaine.disponible) {
+        let distance = distanceBetweenTwoPoints([
+                    fontaine.geoJSONData.coordinates[1],
+                    fontaine.geoJSONData.coordinates[0]
+                ], userPosition);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestFountain = fontaine;
+            }
+        }
+    }
+    return closestFountain;
+}
+
+function calculateRouteFromPosition(nearestFountainCoord) {
+    deleteCurrentRoute();
+    var router = routingService.getRoutingService(null, 8),
+        routeRequestParams = {
+          routingMode: 'fast',
+          transportMode: 'pedestrian',
+          origin: `${userPosition[0]},${userPosition[1]}`, 
+          destination: `${nearestFountainCoord[0]},${nearestFountainCoord[1]}`, 
+          return: 'polyline,turnByTurnActions,actions,instructions,travelSummary'
+        };
+  
+    router.calculateRoute(
+      routeRequestParams,
+      onSuccessfulRoute,
+      onErrorRoute
+    );
+}
+
+function distanceBetweenTwoPoints(p1, p2) {
+    return Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2))
+}
+  
+function onSuccessfulRoute(result) {
+    let route = result.routes[0];
+
+    addTrajectoryToMap(route);
+    addStepsToMap(route);
+}  
+
+function onErrorRoute(error) {
+    alert('Can\'t reach the remote server');
+}
+
+function addTrajectoryToMap(route) {
+    route.sections.forEach((section) => {
+        let linestring = H.geo.LineString
+                              .fromFlexiblePolyline(section.polyline);
+        let polyline = []
+        linestring.eachLatLngAlt((lat, lng, alt, idx) => polyline.push([lat, lng]));
+        currentRoute.push(L.polyline(polyline, {
+                    weight: 4,
+                    color: "#0000FF",
+                    opacity: 0.75,
+                }).addTo(map));
+
+        // zoom the map to the polyline
+        map.fitBounds(currentRoute[0].getBounds());
+    });
+}
+
+function addStepsToMap(route) {
+    route.sections.forEach((section) => {
+        let poly = H.geo.LineString.fromFlexiblePolyline(section.polyline).getLatLngAltArray();
+
+        console.log(section);
+
+        // Add a marker for each maneuver
+        for (action of section.actions) {
+            currentRoute.push(
+                new L.CircleMarker([
+                    poly[action.offset * 3],
+                    poly[action.offset * 3 + 1]
+                ], {
+                    radius: 6,
+                    color: "#1111AA",
+                    opacity: 1,
+                    fillColor: "0000FF",
+                    fillOpacity: 1
+                })
+                .addTo(map)
+                .bindPopup(action.instruction)
+            );
+        }
+    });
+}
+
+function deleteCurrentRoute() {
+    // We delete the previous route
+    if (currentRoute != null && currentRoute.length > 0 ) {
+        currentRoute.forEach((elem) => elem.remove());
+    }
+    currentRoute = [];
 }
