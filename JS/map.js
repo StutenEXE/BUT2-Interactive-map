@@ -1,7 +1,36 @@
 const ARRONDISSEMENT_DEFAULT_COLOR = "#ED820E";
 const ARRONDISSEMENT_HOVER_COLOR = "#FF0000";
+
+const POLY_STYLE_SELECTED = {
+    color: ARRONDISSEMENT_HOVER_COLOR,
+    opacity: 1,
+    fillColor: ARRONDISSEMENT_HOVER_COLOR,
+    fillOpacity: 0.15
+}
+const POLY_STYLE_DEFAULT = {
+    color: ARRONDISSEMENT_DEFAULT_COLOR,
+    opacity: 1,
+    fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
+    fillOpacity: 0.15
+}
+
+const MARKER_AVAILABLE_STYLE = {
+    iconSize: [25, 38],
+    iconAnchor: [12.5, 38],
+    popupAnchor: [0, -34],
+    iconUrl: "./images/available-marker.png"
+};
+
+const MARKER_UNAVAILABLE_STYLE = {
+    iconSize: [25, 38],
+    iconAnchor: [12.5, 38],
+    popupAnchor: [0, -34],
+    iconUrl: "./images/unavailable-marker.png"
+};
+
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
+const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
 
 let map;
 let tiles;
@@ -10,8 +39,10 @@ let fontainesData;
 let fontainesMarkers;
 let zoom;
 let userCircle;
+let userPosition;
 let lastArrondChosen;
 let showUnavailable = false;
+let currentRoute;
 
 
 let geocodeService;
@@ -24,13 +55,16 @@ let geocodeService;
         no_voirie_impair | *_*_pair: string
     }
 */
-function Fontaine(fontaine) {
+function Fontaine(fontaine, isDefault) {
     this.geoJSONData = fontaine.geo_shape;
     this.disponible = fontaine.dispo=="OUI"?true:false;
-    this.rue = fontaine.voie//.toUpper();
-    if (fontaine.no_voirie_impair != undefined) this.num_voirie = fontaine.no_voirie_impair
-    else if(fontaine.no_voirie_pair != undefined) this.num_voirie = fontaine.no_voirie_pair;
-    else this.num_voirie = null;
+
+    this.rue = " ";
+    if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
+    else if(fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
+    this.rue += " " + fontaine.voie//.toUpperCase();
+
+    this.isDefault = isDefault;
 }
 
 $(document).ready(init);
@@ -44,12 +78,14 @@ function init() {
 
     getDataFontaines();
 
-    $("#MyPosition").click(setupUserPosition);
+    $("#MyPosition").click(() => setupUserPosition());
 
     zoom = {
         start:  map.getZoom(),
         end: map.getZoom()
     };
+
+    currentRoute = new L.LayerGroup();
 }
 
 function setupMap() {
@@ -58,11 +94,14 @@ function setupMap() {
         zoom: 12
     });
 
-    tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    tiles = L.tileLayer(`https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}.png?access-token=${ JAWG_TOKEN }`, {
+        attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib">&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>',
         maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
+
+    // On retire le dblclick zoom et on le remplace
+    map.doubleClickZoom.disable(); 
     map.on("dblclick", (event) => createNewFountain(event))
 
     // Map realiste
@@ -80,21 +119,16 @@ function setupArrondissementPolygons() {
                 // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
                 let coordInv = invertCoordList(arrondissement.fields.geom.coordinates[0]);
                 
-                arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, {
-                        color: ARRONDISSEMENT_DEFAULT_COLOR,
-                        opacity: 1,
-                        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-                        fillOpacity: 0.15
-                    })
-                    .on("click",
-                        (event) => handleClickArrondissement(event)
-                    )
-                    .on("mouseover",
-                        (event) => handleHoverInArrondissement(event)
-                    )
-                    .on("mouseout",
-                        (event) => handleHoverOutArrondissement(event)
-                    )  
+                // Evite d'inverser les coords mais cause d'autres problemes sur d'autres fctions
+                // arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.geoJSON(arrondissement.fields.geom, {
+                //     pointToLayer: (feature, latlng) => { return L.polygon(latlng, POLY_STYLE_DEFAULT); }
+                // })
+                arrondissementsPoly[Number(arrondissement.fields.c_ar) - 1] = L.polygon(coordInv, POLY_STYLE_DEFAULT)
+                    .on({
+                    "click": (event) => handleClickArrondissement(event),
+                    "mouseover": (event) => handleHoverInArrondissement(event),
+                    "mouseout": (event) => handleHoverOutArrondissement(event)
+                    })  
                     .addTo(map);
 
                 // On planifie la structure pour classer les fontaines
@@ -120,19 +154,25 @@ function invertCoordList(list) {
 function setupUserPosition() {
     navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    userCircle != null ? userCircle.remove() : null;
-                    userCircle = L.circleMarker([position.coords.latitude, position.coords.longitude], {
-                        radius: 8,
-                        weight: 8,
-                        color: "#0000FF",
-                        opacity: 0.3,
-                        fillColor: "#0000FF",
-                        fillOpacity: 1
-                    }).addTo(map).bindPopup("User position");
-                    map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 17);
+                    // userPosition = [position.coords.latitude, position.coords.longitude];
+                    userPosition = [48.84223513100503, 2.2679049153440825]
+                    putUserCircleMarker(true);
                 }, 
                 (error) => console.log("User denied access to geolocation")
             );
+}
+
+function putUserCircleMarker(showPos) {
+    userCircle != null ? userCircle.remove() : null;
+    userCircle = L.circleMarker(userPosition, {
+        radius: 8,
+        weight: 8,
+        color: "#0000FF",
+        opacity: 0.3,
+        fillColor: "#0000FF",
+        fillOpacity: 1
+    }).addTo(map).bindPopup("User position");
+    if (showPos) map.setView(userPosition, 17);
 }
 
 function getDataFontaines() {
@@ -142,7 +182,7 @@ function getDataFontaines() {
                     arrond = getArrondPoint(fontaine.fields.geo_point_2d)
                     if (arrond != null) {
                         fontainesData[arrond].
-                        data.push((new Fontaine(fontaine.fields)));
+                        data.push((new Fontaine(fontaine.fields, true)));
                     }
                 }
             });
@@ -164,7 +204,7 @@ function getArrondPoint(point) {
 
 // Algorithme de raycasting
 function pointInsidePolygon(poly, point) {
-    let polyPoints = poly.getLatLngs()[0];       
+    let polyPoints = poly.getLatLngs()[0];   
     let x = point[0], y = point[1];
 
     let inside = false;
@@ -192,53 +232,62 @@ function showFountainMarkersInArrond(arrond) {
     arrond = getArrondPoint([centerOfPoly.lat, centerOfPoly.lng]);
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
-    for(fontaine of fontainesData[arrond].data) {
-        if(showUnavailable || fontaine.disponible) {
-            createFountainMarker(fontaine);
+    for(idx in fontainesData[arrond].data) {
+        if(showUnavailable || fontainesData[arrond].data[idx].disponible) {
+            createFountainMarker(arrond, idx);
         }
     }
 }
 
-function createFountainMarker(fontaine) {
-    console.log(fontaine.geoJSONData)
+function createFountainMarker(arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
 
-    let marker = L.geoJSON(fontaine.geoJSONData).addTo(map)
-            .bindPopup(`<b>${ fontaine.num_voirie == null ? "" : fontaine.num_voirie } ${ fontaine.rue }</b>
-                        <br>
-                        Disponible : ${ fontaine.disponible ? "OUI" : "NON" }`);
+    let iconStyle;
+    if (fontaine.disponible) iconStyle = L.icon(MARKER_AVAILABLE_STYLE);
+    else iconStyle = L.icon(MARKER_UNAVAILABLE_STYLE);
+    
+    let marker = L.geoJSON(fontaine.geoJSONData, {
+        pointToLayer: (feature, latlng) => { return L.marker(latlng, {icon: iconStyle}); }
+    }).addTo(map);
+
+    createFountainMarkerText(marker, arrond, idx);
+
     fontainesMarkers.push(marker);
 }
 
 function handleClickArrondissement(event) {
-    map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
-    
     if (lastArrondChosen != event.target) {
+        // We put the last chosen poly back to it's default state
+        if (lastArrondChosen != null) lastArrondChosen.setStyle(POLY_STYLE_DEFAULT);
+
+        // We fit the arrondissement 
+        map.fitBounds(event.target.getBounds(), { padding: [-66, -66] });
+        
         // On supprime les markers precedents
         removeFountainMarkers();
 
-        // On affiche les fontaines dans l'arrondissement choisi
+        
         lastArrondChosen = event.target;
-        showFountainMarkersInArrond(event.target);
+        lastArrondChosen.setStyle(POLY_STYLE_SELECTED);
+
+        // On affiche les fontaines dans l'arrondissement choisi
+        showFountainMarkersInArrond(lastArrondChosen);
     }
 }
 
 function handleHoverInArrondissement(event) {
     event.target.bringToFront();
-    event.target.setStyle({
-        color: ARRONDISSEMENT_HOVER_COLOR,
-        opacity: 1,
-        fillColor: ARRONDISSEMENT_HOVER_COLOR,
-        fillOpacity: 0.15
-    });
+    event.target.setStyle(POLY_STYLE_SELECTED);
 }
 
 function handleHoverOutArrondissement(event) {
-    event.target.setStyle({
-        color: ARRONDISSEMENT_DEFAULT_COLOR,
-        opacity: 1,
-        fillColor: ARRONDISSEMENT_DEFAULT_COLOR,
-        fillOpacity: 0.15
-    });
+    if (event.target != lastArrondChosen) {
+        event.target.setStyle(POLY_STYLE_DEFAULT);
+        event.target.bringToBack();
+    }
+    else {
+        event.target.bringToFront();
+    }
 }
 
 function handleClickToggleMarkersDispo() {
@@ -273,18 +322,16 @@ function createNewFountain(event) {
                     result.address.Match_addr.split(",")[0] : result.address.Match_addr;
             newFountain  = new Fontaine({
                 geo_shape:  { coordinates: geoPoint,
-                    type: "Point"
-                },
+                              type: "Point"
+                        },
                 dispo: "OUI",
                 voie: voie,
                 no_voirie_impair: null
-            });
+            }, false);
 
             fontainesData[arrond].data.push(newFountain);
 
-            console.log(newFountain);
-
-            createFountainMarker(newFountain);
+            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
         });
     }
 }
@@ -295,4 +342,159 @@ function activateGeoCodeService() {
             apikey: "AAPK56a058469da84b49ab85187815497bccIz0_IwPeerd6C4ta8ta2SF-i8qmCEOftByx8qRKLaIh_RgB4NvMb1nrXPtYr2Ks2" // replace with your api key - https://developers.arcgis.com
         });
     }
+}
+
+function createFountainMarkerText(marker, arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    marker.bindPopup(`
+                    <div class="popup-${ fontaine.disponible ? "dispo" : "indispo"  }">
+                        <b>${ fontaine.rue }</b>
+                        <div class="popup-info">
+                            <p> Disponible : <span class="status">${ fontaine.disponible ? "OUI" : "NON" }</span> </p> 
+                            <button class="popup-btn" onclick="toggleDispoFontaine(${ arrond }, ${ idx })">
+                                Rendre ${ fontaine.disponible ? "indisponible" : "disponible"  }
+                            </button>
+                        </div>
+                    </div>`), {
+                        className: "popup"
+                    };
+}
+
+function toggleDispoFontaine(arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    fontaine.disponible = !fontaine.disponible;
+    removeFountainMarkers();
+    showFountainMarkersInArrond(lastArrondChosen);
+}
+
+async function handleClickRouting() {
+    navigator.geolocation.getCurrentPosition((position) => {
+        // userPosition = [position.coords.latitude, position.coords.longitude];
+        userPosition = [48.84223513100503, 2.2679049153440825]
+        putUserCircleMarker(false);
+
+        let arrond = getArrondPoint(userPosition);
+
+        if (arrond == null) alert("Vous n'êtes pas à Paris !") 
+        else {
+            // We find the closest point from the user
+            closestFountain = getClosestFountain(arrond);
+            showFountainMarkersInArrond(arrondissementsPoly[arrond]);
+            lastArrondChosen = arrondissementsPoly[arrond];
+            calculateRouteFromPosition([closestFountain.geoJSONData.coordinates[1],
+                                        closestFountain.geoJSONData.coordinates[0]]);
+        }
+    });
+}
+
+var routingService = new H.service.Platform({
+    apikey: "tSrrfY12xrYTQcKrFINr0Wd8DeI8DCRAcdnjuprI_xE"
+});
+
+function getClosestFountain(arrond) {
+    let minDistance = distanceBetweenTwoPoints([
+        fontainesData[arrond].data[0].geoJSONData.coordinates[1],
+        fontainesData[arrond].data[0].geoJSONData.coordinates[0]
+    ], userPosition);
+
+    let closestFountain = fontainesData[arrond].data[0];
+    for(fontaine of fontainesData[arrond].data) {
+        if (fontaine.disponible) {
+        let distance = distanceBetweenTwoPoints([
+                    fontaine.geoJSONData.coordinates[1],
+                    fontaine.geoJSONData.coordinates[0]
+                ], userPosition);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestFountain = fontaine;
+            }
+        }
+    }
+    return closestFountain;
+}
+
+function calculateRouteFromPosition(nearestFountainCoord) {
+
+    deleteCurrentRoute();
+
+    var router = routingService.getRoutingService(null, 8),
+        routeRequestParams = {
+          routingMode: 'fast',
+          transportMode: 'pedestrian',
+          origin: `${userPosition[0]},${userPosition[1]}`, 
+          destination: `${nearestFountainCoord[0]},${nearestFountainCoord[1]}`, 
+          return: 'polyline,turnByTurnActions,actions,instructions,travelSummary'
+        };
+  
+    router.calculateRoute(
+      routeRequestParams,
+      onSuccessfulRoute,
+      onErrorRoute
+    );
+}
+
+function distanceBetweenTwoPoints(p1, p2) {
+    return Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2))
+}
+  
+function onSuccessfulRoute(result) {
+    let route = result.routes[0];
+
+    addTrajectoryToMap(route);
+    addStepsToMap(route);
+
+    currentRoute.setZIndex(100000000);
+    map.addLayer(currentRoute, true);
+}  
+
+function onErrorRoute(error) {
+    alert('Can\'t reach the remote server');
+}
+
+function addTrajectoryToMap(route) {
+    route.sections.forEach((section) => {
+        let linestring = H.geo.LineString
+                              .fromFlexiblePolyline(section.polyline);
+        let polyline = []
+        linestring.eachLatLngAlt((lat, lng, alt, idx) => polyline.push([lat, lng]));
+        polyline = L.polyline(polyline, {
+                weight: 4,
+                color: "#0000FF",
+                opacity: 0.75,
+            }
+        );
+        currentRoute.addLayer(polyline);
+
+        // zoom the map to the polyline
+        map.fitBounds(polyline.getBounds());
+    });
+}
+
+function addStepsToMap(route) {
+    route.sections.forEach((section) => {
+        let poly = H.geo.LineString.fromFlexiblePolyline(section.polyline).getLatLngAltArray();
+
+        var stepIcon = L.icon({
+            iconSize: [20, 20],
+            iconUrl: './images/route-step-marker.png',
+        });
+
+        // Add a marker for each maneuver
+        for (action of section.actions) {
+            currentRoute.addLayer(
+                new L.Marker([
+                    poly[action.offset * 3],
+                    poly[action.offset * 3 + 1]
+                ], {  
+                    icon: stepIcon
+                })
+                .bindPopup(action.instruction)
+            );
+        }
+    });
+}
+
+function deleteCurrentRoute() {
+    // We delete the previous route
+    currentRoute.clearLayers();
 }
