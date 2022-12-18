@@ -25,28 +25,24 @@
         </header>
 
         <div id="MapContainer">  
-            <div id="map"></div>
+            <div id="Map"></div>
                     
-            <img id="Information" src="images/questionmark.png" alt="information">
+            <img id="Information" src="images/questionmark.png" onclick="handleShowInformation()" alt="information">
 
             <div id="InformationText">
-                <p>
-                    Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
-                    des fontaines pour vos amis groupes.
-                    
-                    Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 
-                    ne sera visible que par vous et votre groupe.
-
-                    Pour changer le statut de disponibilité d'une fontaine, cliquez dessus puis
-                    cliquez sur le bouton.
-                    
-                    Pour marquer une fontaine comme une à laquelle vous avez bu, cliquez dessus 
-                    puis cliquez sur le bouton. Seul votre groupe et vous-même pourrez voir que vous
-                    avez bu à cette fontaine.
-                </p>
+                <img id="CloseInfoText" src="images/cross.png" onclick="handleCloseInformation()" alt="close">
+                <p>Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
+                des fontaines pour vos amis groupes.</p>
+                <p>Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 
+                ne sera visible que par vous et votre groupe.</p>
+                <p>Pour changer le statut de disponibilité d'une fontaine, cliquez dessus puis
+                cliquez sur le bouton.</p>
+                <p>Pour marquer une fontaine comme une à laquelle vous avez bu, cliquez dessus 
+                puis cliquez sur le bouton. Seul votre groupe et vous-même pourrez voir que vous
+                avez bu à cette fontaine.</p>
             </div>
 
-            <img id="MyPosition" src="images/bullseye.svg" alt="bullseye">
+            <img id="MyPosition" src="images/bullseye.svg" onclick="setupUserPosition()" alt="bullseye">
 
             <div id="Toolbar">
                 <button id="ButtonRouting" onclick="handleClickRouting()">
