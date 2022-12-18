@@ -41,7 +41,7 @@ let zoom;
 let userCircle;
 let userPosition;
 let lastArrondChosen;
-let showUnavailable = false;
+let showUnavailable = true;
 let currentRoute;
 
 
@@ -499,3 +499,4 @@ function deleteCurrentRoute() {
     // We delete the previous route
     currentRoute.clearLayers();
 }
+

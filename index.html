@@ -27,7 +27,27 @@
         <div id="MapContainer">  
             <div id="map"></div>
                     
+            <img id="Information" src="images/questionmark.png" alt="information">
+
+            <div id="InformationText">
+                <p>
+                    Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
+                    des fontaines pour vos amis groupes.
+                    
+                    Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 
+                    ne sera visible que par vous et votre groupe.
+
+                    Pour changer le statut de disponibilité d'une fontaine, cliquez dessus puis
+                    cliquez sur le bouton.
+                    
+                    Pour marquer une fontaine comme une à laquelle vous avez bu, cliquez dessus 
+                    puis cliquez sur le bouton. Seul votre groupe et vous-même pourrez voir que vous
+                    avez bu à cette fontaine.
+                </p>
+            </div>
+
             <img id="MyPosition" src="images/bullseye.svg" alt="bullseye">
+
             <div id="Toolbar">
                 <button id="ButtonRouting" onclick="handleClickRouting()">
                     Route to nearest fountain
@@ -36,6 +56,7 @@
                     <span class="togglableText">Show</span> unavailable fountains
                 </button>
             </div>
+
         </div>
         <footer>
             <h5>Site réalisé par Alexandre Bidaux, Alexis Montculier et Axel Brun</h5>
