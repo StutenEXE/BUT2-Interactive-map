@@ -41,7 +41,7 @@ let zoom;
 let userCircle;
 let userPosition;
 let lastArrondChosen;
-let showUnavailable = false;
+let showUnavailable = true;
 let currentRoute;
 
 
@@ -78,8 +78,6 @@ function init() {
 
     getDataFontaines();
 
-    $("#MyPosition").click(() => setupUserPosition());
-
     zoom = {
         start: map.getZoom(),
         end: map.getZoom()
@@ -89,7 +87,7 @@ function init() {
 }
 
 function setupMap() {
-    map = L.map('map', {
+    map = L.map('Map', {
         center: COORD_CENTRE_PARIS,
         zoom: 12
     });
@@ -499,3 +497,17 @@ function deleteCurrentRoute() {
     // We delete the previous route
     currentRoute.clearLayers();
 }
+
+function handleCloseInformation() {
+    $("#InformationText").hide();
+    $("#InformationText").css("opacity", 0)    
+}
+
+function handleShowInformation() {
+    // $("#InformationText").css("display", "flex");
+    $("#InformationText").show()
+    $("#InformationText").animate({
+        opacity: 1,
+    }, 300);
+}
+
