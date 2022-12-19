@@ -4,9 +4,7 @@
 
     --availableColor: #00AEEF;
     --unavailableColor: #FF2700;
-
-    /* --availableStatusColor: #42f242;
-    --unavailableStatusColor: #FF2700; */
+    --drankColor: #00B201;
 }
 
 .leaflet-popup-content-wrapper, 
@@ -23,7 +21,7 @@
 
 .popup-info {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
@@ -31,17 +29,25 @@
 }
 .status {
     border-radius: 4px;
-    padding: 3px;
+    padding: 2px;
     font-weight: 900;
     color: var(--bgColor);
 }
 
-.popup-dispo .status {
+.popup-dispo .status-dispo {
     background-color: var(--availableColor);
 }
 
-.popup-indispo .status {
+.popup-indispo .status-dispo {
     background-color: var(--unavailableColor);
+}
+
+.popup-bu .status-bu {
+    background-color: var(--drankColor);
+}
+
+.popup-pasbu .status-bu {
+    background-color: var(--textColor);
 }
 
 .popup-btn {
@@ -51,23 +57,20 @@
 
     font-weight: 600;
 }
-
-.popup-dispo .popup-btn,
-.popup-indispo .popup-btn {
+.popup-btn {
     background-size: 200%;
     transition: background-position .3s cubic-bezier(.47, .1, 1, .63),
       color .2s linear;
     transition-delay: 0.0s, 0.15s;
 }
 
-.popup-dispo .popup-btn:hover,
-.popup-indispo .popup-btn:hover {
+.popup-btn:hover {
     cursor: pointer;
     background-position: -100% 100%;
 }
 
 /* DISPONIBLE -> INDISPONIBLE */
-.popup-dispo .popup-btn {
+.popup-dispo .popup-btn-dispo {
     background-image: linear-gradient(90deg,
         var(--availableColor) 0%,
         var(--availableColor) 50%,
@@ -77,10 +80,46 @@
 
 
 /* INDISPONIBLE -> DISPONIBLE */
-.popup-indispo .popup-btn {
+.popup-indispo .popup-btn-dispo {
     background-image: linear-gradient(90deg,
         var(--unavailableColor) 0%,
         var(--unavailableColor) 50%,
         var(--availableColor) 50%,
         var(--availableColor) 100%);
+}
+
+/* BU -> INDISPONIBLE */
+.popup-indispo.popup-bu .popup-btn-bu {
+    background-image: linear-gradient(90deg,
+        var(--drankColor) 0%,
+        var(--drankColor) 50%,
+        var(--unavailableColor) 50%,
+        var(--unavailableColor) 100%);
+}
+
+/* BU -> DISPONIBLE */
+.popup-dispo.popup-bu .popup-btn-bu {
+    background-image: linear-gradient(90deg,
+        var(--drankColor) 0%,
+        var(--drankColor) 50%,
+        var(--availableColor) 50%,
+        var(--availableColor) 100%);
+}
+
+/* INDISPONIBLE -> PAS BU */
+.popup-indispo.popup-pasbu .popup-btn-bu {
+    background-image: linear-gradient(90deg,
+        var(--unavailableColor) 0%,
+        var(--unavailableColor) 50%,
+        var(--drankColor) 50%,
+        var(--drankColor) 100%);
+}
+
+/* DISPONIBLE -> PAS BU */
+.popup-dispo.popup-pasbu .popup-btn-bu {
+    background-image: linear-gradient(90deg,
+        var(--availableColor) 0%,
+        var(--availableColor) 50%,
+        var(--drankColor) 50%,
+        var(--drankColor) 100%);
 }

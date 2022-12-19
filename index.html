@@ -46,10 +46,16 @@
 
             <div id="Toolbar">
                 <button id="ButtonRouting" onclick="handleClickRouting()">
-                    Route to nearest fountain
+                    Route vers la fontaine la plus proche
                 </button>
                 <button id="ButtonToggleMarkersDispo" onclick="handleClickToggleMarkersDispo()">
-                    <span class="togglableText">Show</span> unavailable fountains
+                    <span class="togglableText">Montrer</span> les fontaines indisponibles
+                </button>
+                <button id="ButtonShowOnlyDrank" onclick="handleClickToggleNotDrank()">
+                    <span class="togglableText">Cacher</span> les fontaines auxquelles je n'ai pas bu
+                </button>
+                <button id="ButtonShowAll" onclick="handleClickShowAll()">
+                    Montrer tout
                 </button>
             </div>
 
