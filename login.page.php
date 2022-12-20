@@ -11,8 +11,8 @@
         <input name="pseudo" type="text"> Pseudo
         <br>
         <input name="mdp" type="password"> Mot de passe     
-        <input type= "submit"  value="soumettre">
+        <button type= "submit"  value="soumettre"> Soumettre </button>
     </form>
-    <a href="signup.html">Pas encore de compte ? Inscirvez-vous ici</a>
+    <a href="signup.page.php">Pas encore de compte ? Inscirvez-vous ici</a>
 </body>
 </html>

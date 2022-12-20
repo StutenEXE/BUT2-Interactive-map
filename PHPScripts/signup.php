@@ -1,36 +1,49 @@
 <?php
 	session_start();
 
-	$pseudo = isset($_POST['pseudo'])?($_POST['pseudo']):'';
-	$mdp = isset($_POST['mdp'])?($_POST['mdp']):'';
-	$msg = '';
+	$pseudo = isset($_POST['pseudo']) ? $_POST['pseudo'] : '';
+	$mdp =isset($_POST['mdp']) ? $_POST['mdp'] : '';
+	$mdpVerif = isset($_POST['mdp-validation']) ? $_POST['mdp-validation'] : '';
 
-	if  (count($_POST)==0)
-		require ("../signup.html") ;
-    else {
-	    if  (! verif_pseudo_ok($pseudo)) {
-	        $msg = "Pseudo déjà pris";
-			// $_SESSION EST UNE NORME/CONVENTION, COMME $_POST, C'EST COMME CA
-			$_SESSION['profil'] = array();
-	        header("Location: ../signup.html"); 
-		}
-	    else { 
-            require("connect.php");
-            $sql = "INSERT INTO UTILISATEUR(ID,Pseudo,MDP,ID_Groupe) VALUES(NULL,:pseudo,:mdp,NULL)";
-			$commande = $pdo->prepare($sql);
-			$commande->bindparam(':pseudo', $pseudo);
-            $commande->bindparam(':mdp', $mdp);
-            $commande->execute();
-
-			$_SESSION['profil'] = array("pseudo" => $pseudo);
-			echo("bienvenue");
-			header("Location:home.php");
-		}
-    }	
+	if (verifChampVide($pseudo, $mdp, $mdpVerif)) {
+		header("Location: ../signup.page.php?error=champvide");
+		exit();
+	}
+	if (verifPseudoInvalide($pseudo)) {
+		header("Location: ../signup.page.php?error=pseudoInvalide");
+		exit();
+	}
+	if (verifPseudoExistant($pseudo)) {
+		header("Location: ../signup.page.php?error=pseudoExistant");
+		exit();
+	}
+	if (verifMdpInf8Chars($mdp)) {
+		header("Location: ../signup.page.php?error=mdpCourt");
+		exit();
+	}
+	if (verifMdpVerifDifferent($mdp, $mdpVerif)) {
+		header("Location: ../signup.page.php?error=mdpInequivalents");
+		exit();
+	}
 	
-	function verif_pseudo_ok($pseudo) {
-		// Connextion a la BD ci-dessous
-		require("connect.php");
+	insertUtilisateur($pseudo, $mdp);
+
+	$_SESSION['profil'] = array("Pseudo" => $pseudo);
+	header("Location:../home.page.php");
+	
+
+	function verifChampVide($pseudo, $mdp, $mdpVerif) {
+		return $pseudo === '' || $mdp === '' || $mdpVerif === '';
+	}
+
+	function verifPseudoInvalide($pseudo) {
+		return !preg_match("/^[a-zA-Z0-9]*$/", $pseudo);
+	}
+
+
+	function verifPseudoExistant($pseudo) {
+		// Connection a la BD ci-dessous
+		require("connectDB.php");
 		$sql = "SELECT * FROM `utilisateur` where Pseudo=:pseudo";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
@@ -38,7 +51,6 @@
 		$resultat = array();
 		try {
 			$bool = $commande->execute();
-
 			if ($bool) {
 				$resultat = $commande->fetchAll(PDO::FETCH_ASSOC); // Tableau de la BD
 			}
@@ -47,10 +59,26 @@
 			echo utf8_encode("Echec de select : " . $e->getMessage() . "\n");
 			die();
 		}
-
-		if (count($resultat) == 0) {
+		if (count($resultat) > 0) {
 			return true;
 		}
 	    return false;
 	}
+
+	function verifMdpInf8Chars($mdp) {
+		return strlen($mdp) < 8;
+	}
+
+	function verifMdpVerifDifferent($mdp, $mdpVerif) {
+		return strcmp($mdp, $mdpVerif) !== 0;
+	}
+
+    function insertUtilisateur($pseudo, $mdp) {
+        require("connectDB.php");
+        $sql = "INSERT INTO UTILISATEUR(ID,Pseudo,MDP,ID_Groupe) VALUES(NULL,:pseudo,:mdp,NULL)";
+        $commande = $pdo->prepare($sql);
+        $commande->bindparam(':pseudo', $pseudo);
+        $commande->bindparam(':mdp', $mdp);
+        $commande->execute();
+    }
 ?>

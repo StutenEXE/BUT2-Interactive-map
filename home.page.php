@@ -1,3 +1,8 @@
+<?php
+    session_start();
+    $pseudo = $_SESSION['profil']['Pseudo'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,10 +23,9 @@
         <link rel="stylesheet" href="./CSS/style.css"/>
         <link rel="stylesheet" href="CSS/popupStyle.css">
     </head>
-
     <body>
         <header>
-            <h1>Bienvenue sur notre carte interactive - <?php printf($pseudo); ?></h1>
+            <h1>Bienvenue sur notre carte interactive - <?php echo $pseudo ?></h1>
         </header>
 
         <div id="MapContainer">  

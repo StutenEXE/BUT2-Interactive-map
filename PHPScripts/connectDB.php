@@ -1,11 +1,10 @@
 <?php
 	// SCRIPT DE CONNEXION A LA BD		
 
-	$hostname = "localhost";	//ou localhost
+	$hostname = "localhost";
 	$base= "lex-a";
-	$loginBD= "root";	//ou "root"
+	$loginBD= "root";
 	$passBD="root";
-	//$pdo = null;
 
     try {
 	    $pdo = new PDO ("mysql:server=$hostname; dbname=$base", "$loginBD", "$passBD");
