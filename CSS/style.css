@@ -1,43 +1,121 @@
 :root {
-    --bgColor: #272838;
-    --textColor: #cecece;
-    --invertBgColor: #d8d7c7;
-    
-    --errorBgColor: #E53935;
+  --bgColor: #272838;
+  --textColor: #cecece;
+  --invertBgColor: #d8d7c7;
+
+  --errorBgColor: #e53935;
 }
 
-
-html, body {
-    height: 100%;
-    margin: 0;
-    background-color: var(--bgColor);
-    color: var(--textColor);
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--bgColor);
+  color: var(--textColor);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 a {
-    text-decoration: underline;
-    color: var(--textColor);
+  text-decoration: underline;
+  color: var(--textColor);
 }
 
 h1 {
-    text-align: center;
-    font-weight: bold;
+  text-align: center;
+  font-weight: bold;
 }
 
 h5 {
-    font-style: italic;
+  font-style: italic;
 }
 
 .error-message {
-    font-weight: bold;
-    padding: 3px;
-    color: var(--bgColor);
-    background-color: var(--errorBgColor);
+  font-weight: bold;
+  padding: 3px;
+  color: var(--bgColor);
+  background-color: var(--errorBgColor);
+}
+
+
+.corps {
+  width: 420px;
+  margin : auto;
+}
+
+.formLogin {
+  font-size: 1.5em;
+}
+.formRegister {
+  font-size: 1.2em;
+}
+
+input {
+  color: rgb(255, 255, 255);
+  background-color: #272838;
+  font-family: Century Gothic, sans serif;
+  width: 99%;
+  border-radius: 3px;
+  max-width: 325px;
+
+}
+
+input:focus-visible {
+  outline: 3px solid rgb(61, 61, 61);
+  background-color: #222453;
+}
+
+h2 {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.soumettre {
+  text-align: center;
+  padding-top : 16px;
+}
+
+.loginButton {
+  width: 110px;
+}
+
+.signupButton {
+  width: 70px;
+}
+
+button[type="submit"] {
+  height: 35px;
+
+  font-size: 15px;
+  margin: 16px 0;
+  border-radius: 3px;
+  background-color: #272838;
+  color: rgb(255, 255, 255);
+}
+
+button[type="submit"]:focus-visible {
+  outline: 3px solid rgb(61, 61, 61);
+  background-color: #272838;
+}
+
+@media screen and (max-width: 420px) {
+  .formLogin {
+    font-size: 20px;
+  }
+  .corps {
+    width: auto;
+    margin :0 10%;
+  }
+  h2 {
+    margin-top: 15%;
+    margin-bottom: 0;
+  }
+  h1 {
+    font-size :32px;
+  }
 }
