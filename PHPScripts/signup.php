@@ -6,7 +6,7 @@
 	$mdpVerif = isset($_POST['mdp-validation']) ? $_POST['mdp-validation'] : '';
 
 	if (verifChampVide($pseudo, $mdp, $mdpVerif)) {
-		header("Location: ../signup.page.php?error=champvide");
+		header("Location: ../signup.page.php?error=champVide");
 		exit();
 	}
 	if (verifPseudoInvalide($pseudo)) {

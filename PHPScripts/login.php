@@ -5,22 +5,23 @@
 	$mdp = isset($_POST['mdp'])?($_POST['mdp']):'';
 	$profil = array();
 
-	if  (count($_POST)==0)
-		require ("../login.page.php") ;
-    else {
-	    if  (! verifUtilisateur($pseudo, $mdp, $profil)) {
-			echo "Pseudo ou mdp erroné";
-			// $_SESSION EST UNE NORME/CONVENTION, COMME $_POST, C'EST COMME CA
-			$_SESSION['profil'] = array();
-	        header("Location: ../login.page.php"); 
-		}
-	    else { 
-			$_SESSION['profil'] = $profil;
-			header("Location: ../home.page.php");
-		}
-    }	
-	
-	function verifUtilisateur($pseudo, $mdp, &$profil=array()) {
+	if (verifChampVide($pseudo, $mdp)) {
+		header("Location: ../login.page.php?error=champVide");
+		exit();
+	}
+	if  (verifUtilisateurInexistant($pseudo, $mdp, $profil)) {
+		header("Location: ../login.page.php?error=informationserronees");
+		exit();
+	}
+
+	$_SESSION['profil'] = $profil;
+	header("Location: ../home.page.php");
+
+	function verifChampVide($pseudo, $mdp) {
+		return $pseudo === '' || $mdp === '';
+	}
+
+	function verifUtilisateurInexistant($pseudo, $mdp, &$profil=array()) {
 		// Connextion a la BD ci-dessous
 		require("connectDB.php");
 		$sql = "SELECT * FROM `utilisateur` where Pseudo=:pseudo and MDP=:mdp";
@@ -38,16 +39,16 @@
 		}
 
 		catch (PDOException $e) {
-			echo utf8_encode("Echec de select : " . $e->getMessage() . "\n");
-			die();
+			header("Location: ../signup.page.php?error=erreurBD");
+			exit();
 		}
 
 		if (count($resultat) == 0) {
-			return false;
+			return true;
 		}
 		else {
 			$profil = $resultat[0];
-			return true;
+			return false;
 		}
 	}
 ?>
