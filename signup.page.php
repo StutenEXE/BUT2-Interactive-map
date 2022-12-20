@@ -18,7 +18,8 @@
         <button type="submit" value="soumettre"> Soumettre </button>    
     </form>
 
-    <p class="error-message"><?php
+    <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
+        <?php
         if (isset($_GET["error"])) {
             if ($_GET["error"] == "champVide") {
                 echo "Veuillez renseigner tous les champs";
@@ -27,7 +28,7 @@
                 echo "Votre pseudo ne peut être constitué que de caractères alphanumériques";
             }
             else if ($_GET["error"] == "pseudoExistant") {
-                echo "Ce pseudo a déjà été pris";
+                echo "Ce pseudo à déjà été pris";
             }
             else if ($_GET["error"] == "mdpCourt") {
                 echo "Votre mot de passe doit faire au moins 8 caractères";
@@ -39,7 +40,8 @@
                 echo "Quelque chose n'a pas marché. Veuillez réessayer";
             }
         }
-    ?></p>
+        ?>
+    </p>
 
     <a href="login.page.php">Déjà un compte ? Connectez-vous ici</a>
 </body>

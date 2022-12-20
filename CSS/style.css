@@ -2,6 +2,8 @@
     --bgColor: #272838;
     --textColor: #cecece;
     --invertBgColor: #d8d7c7;
+    
+    --errorBgColor: #E53935;
 }
 
 
@@ -19,6 +21,11 @@ header {
     align-items: center;
 }
 
+a {
+    text-decoration: underline;
+    color: var(--textColor);
+}
+
 h1 {
     text-align: center;
     font-weight: bold;
@@ -26,4 +33,11 @@ h1 {
 
 h5 {
     font-style: italic;
+}
+
+.error-message {
+    font-weight: bold;
+    padding: 3px;
+    color: var(--bgColor);
+    background-color: var(--errorBgColor);
 }
