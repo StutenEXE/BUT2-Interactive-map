@@ -21,7 +21,8 @@
             integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g==" crossorigin="">
         
         <link rel="stylesheet" href="./CSS/style.css"/>
-        <link rel="stylesheet" href="CSS/popupStyle.css">
+        <link rel="stylesheet" href="./CSS/style.home.css"/>
+        <link rel="stylesheet" href="./CSS/style.popup.css">
     </head>
     <body>
         <header>

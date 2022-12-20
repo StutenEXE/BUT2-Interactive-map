@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
+
+    <link rel="stylesheet" href="./CSS/style.css"/>
 </head>
 <body>
     <form action="PHPScripts/signup.php" method="post">
@@ -32,6 +34,9 @@
             }
             else if ($_GET["error"] == "mdpInequivalents") {
                 echo "Vous n'avez pas rentré le même mot de passe dans le champ de vérification";
+            }
+            else if ($_GET["error"] == "erreurBD") {
+                echo "Quelque chose n'a pas marché. Veuillez réessayer";
             }
         }
     ?></p>
