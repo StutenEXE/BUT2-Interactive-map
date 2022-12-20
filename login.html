@@ -7,15 +7,12 @@
     <title>Login</title>
 </head>
 <body>
-    <form action="login.php" method="post">
-
-        <input 	name="pseudo" 	type="text" value= "<?php echo($nom); ?>" />
+    <form action="PHPScripts/login.php" method="post">
+        <input name="pseudo" type="text"> Pseudo
         <br>
-                 
-        <input  name="num"  type="text"
-                 value= "<?php echo($num) ?>" />       Matricule    <br/> 
-                 
+        <input name="mdp" type="password"> Mot de passe     
         <input type= "submit"  value="soumettre">
     </form>
+    <a href="signup.html">Pas encore de compte ? Inscirvez-vous ici</a>
 </body>
 </html>
