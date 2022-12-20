@@ -28,6 +28,13 @@ const MARKER_UNAVAILABLE_STYLE = {
     iconUrl: "./images/unavailable-marker.png"
 };
 
+const MARKER_DRANK_STYLE = {
+    iconSize: [25, 38],
+    iconAnchor: [12.5, 38],
+    popupAnchor: [0, -34],
+    iconUrl: "./images/drank-marker.png"
+};
+
 const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
@@ -42,6 +49,8 @@ let userCircle;
 let userPosition;
 let lastArrondChosen;
 let showUnavailable = true;
+let showAvailable = true;
+let showDrank = true;
 let currentRoute;
 
 
@@ -62,9 +71,11 @@ function Fontaine(fontaine, isDefault) {
     this.rue = " ";
     if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
     else if (fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
-    this.rue += " " + fontaine.voie//.toUpperCase();
-
+    this.rue += " " + fontaine.voie
+    
     this.isDefault = isDefault;
+
+    this.bu = false;
 }
 
 $(document).ready(init);
@@ -231,7 +242,13 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
-        if (showUnavailable || fontainesData[arrond].data[idx].disponible) {
+        if (showUnavailable && !fontainesData[arrond].data[idx].disponible) {
+            createFountainMarker(arrond, idx);
+        }
+        else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+            createFountainMarker(arrond, idx);
+        }
+        else if (showDrank && fontainesData[arrond].data[idx].bu) {
             createFountainMarker(arrond, idx);
         }
     }
@@ -241,7 +258,8 @@ function createFountainMarker(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
 
     let iconStyle;
-    if (fontaine.disponible) iconStyle = L.icon(MARKER_AVAILABLE_STYLE);
+    if (fontaine.bu) iconStyle = L.icon(MARKER_DRANK_STYLE);
+    else if (fontaine.disponible) iconStyle = L.icon(MARKER_AVAILABLE_STYLE);
     else iconStyle = L.icon(MARKER_UNAVAILABLE_STYLE);
 
     let marker = L.geoJSON(fontaine.geoJSONData, {
@@ -285,20 +303,6 @@ function handleHoverOutArrondissement(event) {
     }
     else {
         event.target.bringToFront();
-    }
-}
-
-function handleClickToggleMarkersDispo() {
-    showUnavailable = !showUnavailable
-    if (showUnavailable) {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Hide")
-    }
-    else {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Show")
-    }
-    if (lastArrondChosen != null) {
-        removeFountainMarkers();
-        showFountainMarkersInArrond(lastArrondChosen);
     }
 }
 
@@ -346,11 +350,15 @@ function activateGeoCodeService() {
 function createFountainMarkerText(marker, arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
     marker.bindPopup(`
-                    <div class="popup-${fontaine.disponible ? "dispo" : "indispo"}">
+                    <div class="popup-${fontaine.disponible ? "dispo" : "indispo"} popup-${fontaine.bu ? "bu" : "pasbu"}">
                         <b>${fontaine.rue}</b>
                         <div class="popup-info">
-                            <p> Disponible : <span class="status">${fontaine.disponible ? "OUI" : "NON"}</span> </p> 
-                            <button class="popup-btn" onclick="toggleDispoFontaine(${arrond}, ${idx})">
+                            <p> Disponible : <span class="status status-dispo">${fontaine.disponible ? "OUI" : "NON"}</span> </p> 
+                            <p> Bu ici : <span class="status status-bu">${fontaine.bu ? "OUI" : "NON"}</span> </p> 
+                            <button class="popup-btn popup-btn-bu" onclick="toggleDrink(${arrond}, ${idx})">
+                                 ${fontaine.bu ? "Je n'ai pas bu ici" : "J'ai bu ici"}
+                            </button>
+                            <button class="popup-btn popup-btn-dispo" onclick="toggleDispoFontaine(${arrond}, ${idx})">
                                 Rendre ${fontaine.disponible ? "indisponible" : "disponible"}
                             </button>
                         </div>
@@ -365,6 +373,14 @@ function toggleDispoFontaine(arrond, idx) {
     removeFountainMarkers();
     showFountainMarkersInArrond(lastArrondChosen);
 }
+
+function toggleDrink(arrond, idx) {
+    let fontaine = fontainesData[arrond].data[idx];
+    fontaine.bu = !fontaine.bu;
+    removeFountainMarkers();
+    showFountainMarkersInArrond(lastArrondChosen);
+}
+
 
 async function handleClickRouting() {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -511,3 +527,49 @@ function handleShowInformation() {
     }, 300);
 }
 
+function refreshButtonTexts() {
+    if (showUnavailable) {
+        $("#ButtonToggleMarkersDispo > .togglableText").html("Cacher")
+    }
+    else {
+        $("#ButtonToggleMarkersDispo > .togglableText").html("Montrer")
+    }
+
+    if (!showAvailable && !showUnavailable) {
+        $("#ButtonShowOnlyDrank > .togglableText").html("Montrer");
+    }
+    else {
+        $("#ButtonShowOnlyDrank > .togglableText").html("Cacher")
+    }
+}
+
+function refreshMarkers() {
+    if (lastArrondChosen != null) {
+        removeFountainMarkers();
+        showFountainMarkersInArrond(lastArrondChosen);
+    }
+}
+
+function handleClickToggleMarkersDispo() {
+    showUnavailable = !showUnavailable
+    refreshButtonTexts();
+    refreshMarkers();
+}
+
+
+function handleClickToggleNotDrank() {
+    if (showAvailable || showUnavailable) {
+        showAvailable = showUnavailable = false;
+    }
+    else {
+        showAvailable = showUnavailable = true;
+    }
+    refreshButtonTexts();
+    refreshMarkers();
+}
+
+function handleClickShowAll() {
+    showAvailable = showUnavailable = showDrank = true;
+    refreshButtonTexts();
+    refreshMarkers();
+}
