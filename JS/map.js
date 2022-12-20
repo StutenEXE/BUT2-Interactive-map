@@ -39,6 +39,8 @@ const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
 
+let userID;
+let groupID;
 let map;
 let tiles;
 let arrondissementsPoly;
@@ -52,35 +54,26 @@ let showUnavailable = true;
 let showAvailable = true;
 let showDrank = true;
 let currentRoute;
-
-
 let geocodeService;
-// Constructeur d'une fontaine dans un arrondissement
-/*
-    fontaine: {
-        geo_shape: GeoJSONObject,
-        dispo: "OUI"|"NON",
-        voie: string,
-        no_voirie_impair | *_*_pair: string
+
+
+function Fontaine(fontaine, isDefault, bu) {
+    this.geoJSONData = { 
+        coordinates: fontaine.Coords,
+        type: "Point"
     }
-*/
-function Fontaine(fontaine, isDefault) {
-    this.geoJSONData = fontaine.geo_shape;
-    this.disponible = fontaine.dispo == "OUI" ? true : false;
-
-    this.rue = " ";
-    if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
-    else if (fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
-    this.rue += " " + fontaine.voie
-    
+    this.disponible = fontaine.Disponible;
+    this.rue = fontaine.Rue;
     this.isDefault = isDefault;
-
-    this.bu = false;
+    this.bu = bu;
 }
 
 $(document).ready(init);
 
 function init() {
+    userID = $("#ID_User").text();
+    groupID = $("#ID_Groupe").text();
+
     fontainesData = new Array(NB_ARRONDISSEMENT_PARIS);
 
     setupMap();
@@ -185,16 +178,72 @@ function putUserCircleMarker(showPos) {
 }
 
 function getDataFontaines() {
-    $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=fontaines-a-boire&q=&rows=10000&facet=type_objet&facet=modele&facet=commune&facet=dispo",
-        (data) => {
-            for (fontaine of data.records) {
-                arrond = getArrondPoint(fontaine.fields.geo_point_2d)
+    // Fontaines pas bues et pas crée par le groupe
+    $.ajax({
+        url: "../PHPScripts/getFontaines.php",
+        method: 'POST',
+        success: (fontaines) => {
+            for (fontaine of fontaines) {
+                arrond = getArrondPoint(fontaine.Coords)
                 if (arrond != null) {
                     fontainesData[arrond].
-                        data.push((new Fontaine(fontaine.fields, true)));
+                        data.push((new Fontaine(fontaine, true, false)));
                 }
             }
-        });
+        }}
+    );
+    // Fontaines pas bues et crée par le groupe
+    $.ajax({
+        url: "../PHPScripts/getFontaines.php",
+        method: 'POST',
+        data: {
+            groupe: groupID
+        },
+        success: (fontaines) => {
+            for (fontaine of fontaines) {
+                arrond = getArrondPoint(fontaine.Coords)
+                if (arrond != null) {
+                    fontainesData[arrond].
+                        data.push((new Fontaine(fontaine, false, false)));
+                }
+            }
+        }}
+    );
+    // Fontaines bues et pas crée par le groupe
+    $.ajax({
+        url: "../PHPScripts/getFontaines.php",
+        method: 'POST',
+        data: {
+            user: userID
+        },
+        success: (fontaines) => {
+            for (fontaine of fontaines) {
+                arrond = getArrondPoint(fontaine.Coords)
+                if (arrond != null) {
+                    fontainesData[arrond].
+                        data.push((new Fontaine(fontaine, true, true)));
+                }
+            }
+        }}
+    );
+    // Fontaines bues et crée par le groupe
+    $.ajax({
+        url: "../PHPScripts/getFontaines.php",
+        method: 'POST',
+        data: {
+            groupe: groupID,
+            user: userID
+        },
+        success: (fontaines) => {
+            for (fontaine of fontaines) {
+                arrond = getArrondPoint(fontaine.Coords)
+                if (arrond != null) {
+                    fontainesData[arrond].
+                        data.push((new Fontaine(fontaine, false, true)));
+                }
+            }
+        }}
+    );
 }
 
 function getArrondPoint(point) {

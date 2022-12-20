@@ -1,10 +1,12 @@
 <?php
     session_start();
     $pseudo = $_SESSION['profil']['Pseudo'];
+    $id = $_SESSION['profil']['ID'];
+    $ID_Groupe = $_SESSION['profil']['ID_Groupe'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
     <head>
         <meta charset="UTF-8">
@@ -68,6 +70,11 @@
         <footer>
             <h5>Site réalisé par Alexandre Bidaux, Alexis Montculier et Axel Brun</h5>
         </footer>
+
+        <div id="session-data" style="display:none;">
+            <span id="ID_User"><?php echo $id ?></span>
+            <span id="ID_Groupe"><?php echo $ID_Groupe ?></span>
+        </div>
 
         <!-- Script Leaflet -->
         <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
