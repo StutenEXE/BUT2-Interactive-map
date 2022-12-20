@@ -70,7 +70,7 @@
 	}
 
 	function verifMdpVerifDifferent($mdp, $mdpVerif) {
-		return strcmp($mdp, $mdpVerif) !== 0;
+		return $mdp != $mdpVerif;
 	}
 
     function insertUtilisateur($pseudo, $mdp) {
