@@ -1,5 +1,12 @@
+<?php
+    session_start();
+    $pseudo = $_SESSION['profil']['Pseudo'];
+    $id = $_SESSION['profil']['ID'];
+    $ID_Groupe = $_SESSION['profil']['ID_Groupe'];
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
     <head>
         <meta charset="UTF-8">
@@ -16,12 +23,12 @@
             integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g==" crossorigin="">
         
         <link rel="stylesheet" href="./CSS/style.css"/>
-        <link rel="stylesheet" href="CSS/popupStyle.css">
+        <link rel="stylesheet" href="./CSS/style.home.css"/>
+        <link rel="stylesheet" href="./CSS/style.popup.css">
     </head>
-
     <body>
         <header>
-            <h1>Bienvenue sur notre carte interactive</h1>
+            <h1>Bienvenue sur notre carte interactive - <?php echo $pseudo ?></h1>
         </header>
 
         <div id="MapContainer">  
@@ -63,6 +70,11 @@
         <footer>
             <h5>Site réalisé par Alexandre Bidaux, Alexis Montculier et Axel Brun</h5>
         </footer>
+
+        <div id="session-data" style="display:none;">
+            <span id="ID_User"><?php echo $id ?></span>
+            <span id="ID_Groupe"><?php echo $ID_Groupe ?></span>
+        </div>
 
         <!-- Script Leaflet -->
         <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
