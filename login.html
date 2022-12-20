@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
 </head>
 <body>
-    
+    <form action="login.php" method="post">
+
+        <input 	name="pseudo" 	type="text" value= "<?php echo($nom); ?>" />
+        <br>
+                 
+        <input  name="num"  type="text"
+                 value= "<?php echo($num) ?>" />       Matricule    <br/> 
+                 
+        <input type= "submit"  value="soumettre">
+    </form>
 </body>
 </html>
