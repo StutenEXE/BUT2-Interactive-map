@@ -6,9 +6,11 @@ def main():
     r = requests.get(url="https://opendata.paris.fr/api/records/1.0/search/?dataset=fontaines-a-boire&q=&rows=10000&facet=type_objet&facet=modele&facet=commune&facet=dispo")
     fontaines = r.json()
 
-    sql = Template('''INSERT INTO FONTAINE(ID,Disponible,Rue,Coords,ID_Groupe) 
-                    VALUES(NULL,$dispo,'$rue',ST_GeomFromText('POINT($lat $long)'),NULL)''')
+    sql = Template('''INSERT INTO GEOML(ID,Disponible,Rue,Coords,ID_Groupe) VALUES(NULL,$dispo,"$rue",ST_GeomFromText('POINT($lat $long)'),NULL);
+    INSERT INTO FONTAINE(ID,Disponible,Rue,Coords,ID_Groupe) VALUES(NULL,$dispo,"$rue",ST_GeomFromText('POINT($lat $long)'),NULL);''')
+
     with open('sqlFiles/data.sql', 'w') as file:
+
         for fontaine in fontaines['records']:
             rue = ""
             if ('no_voirie_impair' in fontaine['fields']) :

@@ -2,6 +2,8 @@
     --bgColor: #272838;
     --textColor: #cecece;
     --invertBgColor: #d8d7c7;
+    
+    --errorBgColor: #E53935;
 }
 
 
@@ -19,113 +21,9 @@ header {
     align-items: center;
 }
 
-.leaflet-container {
-    height: inherit;
-    width: inherit;
-}
-
-#Map {
-    z-index: 1;
-}
-
-#MapContainer {
-    position: relative;
-    width: 100vw;
-    height: 80vh;
-    overflow: hidden;
-}
-
-#MyPosition {
-    cursor: pointer;
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    bottom: 0;
-    border-radius: 25px;
-    width: 50px;
-    margin: 10px;
-    background-color: #fff;
-    padding: 3px;
-    transition: 300ms;
-}
-
-#MyPosition:hover {
-    filter: invert(100%);
-}
-
-#Toolbar {
-    z-index: 2;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    margin: 10px;
-    width: 120px;
-    padding: 10px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-
-}
-
-#QuestionMark {
-    cursor: pointer;
-    position: absolute;
-    z-index: 2;
-    top: 0;
-    right: 0;
-    border-radius: 50% ;
-    width: 20px;
-    margin: 10px;
-    padding: 3px;
-    background-color: var(--bgColor);
-}
-
-#InformationText {
-    opacity: 0;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 3;
-
-    min-width: 250px;
-    padding: 25px;
-
-    background-color: var(--bgColor);
+a {
+    text-decoration: underline;
     color: var(--textColor);
-    transition: 500ms;
-}
-
-#CloseInfoText {
-    cursor: pointer;
-    width: 20px;
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 5px;
-}
-
-#Toolbar > * {
-    font-weight: bold;
-    /* font-family: 'Times New Roman', Times, serif; */
-    border-radius: 10px;
-    transition: 200ms;
-    background-color: var(--bgColor);
-    color: var(--textColor);
-    
-}
-
-#Toolbar > *:hover {
-    background-color: var(--textColor);
-    color: var(--bgColor);
 }
 
 h1 {
@@ -135,4 +33,11 @@ h1 {
 
 h5 {
     font-style: italic;
+}
+
+.error-message {
+    font-weight: bold;
+    padding: 3px;
+    color: var(--bgColor);
+    background-color: var(--errorBgColor);
 }

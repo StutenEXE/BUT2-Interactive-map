@@ -39,6 +39,8 @@ const COORD_CENTRE_PARIS = [48.856614, 2.3522219];
 const NB_ARRONDISSEMENT_PARIS = 20;
 const JAWG_TOKEN = "iKMSfgXFP3b7DLW1qBal7bue3TA90WZlvJ0Jto8hhBEPgNW5vrBb1nU1kZldsaUI";
 
+let userID;
+let groupID;
 let map;
 let tiles;
 let arrondissementsPoly;
@@ -52,35 +54,23 @@ let showUnavailable = true;
 let showAvailable = true;
 let showDrank = true;
 let currentRoute;
-
-
 let geocodeService;
-// Constructeur d'une fontaine dans un arrondissement
-/*
-    fontaine: {
-        geo_shape: GeoJSONObject,
-        dispo: "OUI"|"NON",
-        voie: string,
-        no_voirie_impair | *_*_pair: string
-    }
-*/
-function Fontaine(fontaine, isDefault) {
-    this.geoJSONData = fontaine.geo_shape;
-    this.disponible = fontaine.dispo == "OUI" ? true : false;
 
-    this.rue = " ";
-    if (fontaine.no_voirie_impair != undefined) this.rue += fontaine.no_voirie_impair
-    else if (fontaine.no_voirie_pair != undefined) this.rue += fontaine.no_voirie_pair;
-    this.rue += " " + fontaine.voie
-    
-    this.isDefault = isDefault;
 
-    this.bu = false;
+function Fontaine(fontaine, bu) {
+    this.geoJSONData = fontaine.Coords;
+    this.disponible = fontaine.Disponible;
+    this.rue = fontaine.Rue;
+    this.isDefault = fontaine.ID_Groupe == null;
+    this.bu = fontaine.ID_Utilisateur != null;
 }
 
 $(document).ready(init);
 
 function init() {
+    userID = $("#ID_User").text();
+    groupID = $("#ID_Groupe").text();
+
     fontainesData = new Array(NB_ARRONDISSEMENT_PARIS);
 
     setupMap();
@@ -185,16 +175,26 @@ function putUserCircleMarker(showPos) {
 }
 
 function getDataFontaines() {
-    $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=fontaines-a-boire&q=&rows=10000&facet=type_objet&facet=modele&facet=commune&facet=dispo",
-        (data) => {
-            for (fontaine of data.records) {
-                arrond = getArrondPoint(fontaine.fields.geo_point_2d)
+    // Fontaines pas bues
+    $.ajax({
+        url: `./PHPScripts/getFontaines.php`,
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            groupeID: groupID,
+            userID: userID,
+        },
+        success: (fontaines) => {
+            console.log(fontaines);
+            for (fontaine of fontaines) {
+                arrond = getArrondPoint([fontaine.Coords.coordinates[1], fontaine.Coords.coordinates[0]]);
                 if (arrond != null) {
                     fontainesData[arrond].
-                        data.push((new Fontaine(fontaine.fields, true)));
+                        data.push((new Fontaine(fontaine, false)));
                 }
             }
-        });
+        }}
+    );
 }
 
 function getArrondPoint(point) {
