@@ -57,15 +57,12 @@ let currentRoute;
 let geocodeService;
 
 
-function Fontaine(fontaine, isDefault, bu) {
-    this.geoJSONData = { 
-        coordinates: fontaine.Coords,
-        type: "Point"
-    }
+function Fontaine(fontaine, bu) {
+    this.geoJSONData = fontaine.Coords;
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
-    this.isDefault = isDefault;
-    this.bu = bu;
+    this.isDefault = fontaine.ID_Groupe == null;
+    this.bu = fontaine.ID_Utilisateur != null;
 }
 
 $(document).ready(init);
@@ -178,68 +175,22 @@ function putUserCircleMarker(showPos) {
 }
 
 function getDataFontaines() {
-    // Fontaines pas bues et pas crée par le groupe
+    // Fontaines pas bues
     $.ajax({
-        url: "../PHPScripts/getFontaines.php",
-        method: 'POST',
-        success: (fontaines) => {
-            for (fontaine of fontaines) {
-                arrond = getArrondPoint(fontaine.Coords)
-                if (arrond != null) {
-                    fontainesData[arrond].
-                        data.push((new Fontaine(fontaine, true, false)));
-                }
-            }
-        }}
-    );
-    // Fontaines pas bues et crée par le groupe
-    $.ajax({
-        url: "../PHPScripts/getFontaines.php",
-        method: 'POST',
+        url: `./PHPScripts/getFontaines.php`,
+        type: 'POST',
+        dataType: 'json',
         data: {
-            groupe: groupID
+            groupeID: groupID,
+            userID: userID,
         },
         success: (fontaines) => {
+            console.log(fontaines);
             for (fontaine of fontaines) {
-                arrond = getArrondPoint(fontaine.Coords)
+                arrond = getArrondPoint([fontaine.Coords.coordinates[1], fontaine.Coords.coordinates[0]]);
                 if (arrond != null) {
                     fontainesData[arrond].
-                        data.push((new Fontaine(fontaine, false, false)));
-                }
-            }
-        }}
-    );
-    // Fontaines bues et pas crée par le groupe
-    $.ajax({
-        url: "../PHPScripts/getFontaines.php",
-        method: 'POST',
-        data: {
-            user: userID
-        },
-        success: (fontaines) => {
-            for (fontaine of fontaines) {
-                arrond = getArrondPoint(fontaine.Coords)
-                if (arrond != null) {
-                    fontainesData[arrond].
-                        data.push((new Fontaine(fontaine, true, true)));
-                }
-            }
-        }}
-    );
-    // Fontaines bues et crée par le groupe
-    $.ajax({
-        url: "../PHPScripts/getFontaines.php",
-        method: 'POST',
-        data: {
-            groupe: groupID,
-            user: userID
-        },
-        success: (fontaines) => {
-            for (fontaine of fontaines) {
-                arrond = getArrondPoint(fontaine.Coords)
-                if (arrond != null) {
-                    fontainesData[arrond].
-                        data.push((new Fontaine(fontaine, false, true)));
+                        data.push((new Fontaine(fontaine, false)));
                 }
             }
         }}
