@@ -57,7 +57,8 @@ let currentRoute;
 let geocodeService;
 
 
-function Fontaine(fontaine, bu) {
+function Fontaine(fontaine) {
+    this.id = fontaine.id;
     this.geoJSONData = fontaine.Coords;
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
@@ -101,7 +102,7 @@ function setupMap() {
 
     // On retire le dblclick zoom et on le remplace
     map.doubleClickZoom.disable();
-    map.on("dblclick", (event) => createNewFountain(event))
+    map.on("dblclick", (event) => createNewFountain(event));
 
     // Map realiste
     // tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -112,7 +113,6 @@ function setupMap() {
 function setupArrondissementPolygons() {
     $.getJSON("https://opendata.paris.fr/api/records/1.0/search/?dataset=arrondissements&q=&rows=20&facet=c_ar&facet=c_arinsee&facet=l_ar",
         (data) => {
-
             arrondissementsPoly = new Array(data.records.length);
             for (arrondissement of data.records) {
                 // L'API renvoie les coordonnées en format long lat et il nous faut l'inverse
@@ -178,8 +178,7 @@ function getDataFontaines() {
     // Fontaines pas bues
     $.ajax({
         url: `./PHPScripts/getFontaines.php`,
-        type: 'POST',
-        dataType: 'json',
+        type: 'GET',
         data: {
             groupeID: groupID,
             userID: userID,
@@ -190,11 +189,12 @@ function getDataFontaines() {
                 arrond = getArrondPoint([fontaine.Coords.coordinates[1], fontaine.Coords.coordinates[0]]);
                 if (arrond != null) {
                     fontainesData[arrond].
-                        data.push((new Fontaine(fontaine, false)));
+                        data.push((new Fontaine(fontaine)));
                 }
             }
-        }}
-    );
+        },
+        error: (err)=> console.log('fail') 
+    });
 }
 
 function getArrondPoint(point) {
@@ -309,6 +309,8 @@ function handleHoverOutArrondissement(event) {
 function createNewFountain(event) {
     activateGeoCodeService();
 
+    console.log('dblclick')
+
     point = [event.latlng.lat, event.latlng.lng];
     arrond = getArrondPoint(point);
 
@@ -322,15 +324,33 @@ function createNewFountain(event) {
 
             voie = result.address.Match_addr.split(",")[0] != null ?
                 result.address.Match_addr.split(",")[0] : result.address.Match_addr;
-            newFountain = new Fontaine({
-                geo_shape: {
+
+            let newFountain = new Fontaine({
+                id: null,
+                Coords: {
                     coordinates: geoPoint,
                     type: "Point"
                 },
-                dispo: "OUI",
-                voie: voie,
-                no_voirie_impair: null
-            }, false);
+                Disponible: "OUI",
+                Rue: voie,
+                ID_Utilisateur: null,
+                ID_Groupe: $("#ID_Groupe").text()
+            });
+
+            console.log(newFountain.isDefault);
+
+            $.ajax({
+                url: "./PHPScripts/addFontaine.php",
+                type: "GET",
+                data:  {
+                    coordinates: newFountain.geoJSONData.coordinates,
+                    disponible: true,
+                    rue: newFountain.rue,
+                    groupeID: newFountain.isDefault
+                },
+                success: (data) => console.log("Creation success"),
+                error: (data) => console.log("failed")
+            });
 
             fontainesData[arrond].data.push(newFountain);
 
@@ -361,11 +381,16 @@ function createFountainMarkerText(marker, arrond, idx) {
                             <button class="popup-btn popup-btn-dispo" onclick="toggleDispoFontaine(${arrond}, ${idx})">
                                 Rendre ${fontaine.disponible ? "indisponible" : "disponible"}
                             </button>
+                            ${fontaine.isDefault ? "default" : 'not default'}
                         </div>
                     </div>`), {
         className: "popup"
     };
 }
+
+// `<button class='popup-btn popup-btn-remove' onclick='removeFountain(${fontaine.id})'>
+//     Retirer fontaine
+// </button>`
 
 function toggleDispoFontaine(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
@@ -572,4 +597,15 @@ function handleClickShowAll() {
     showAvailable = showUnavailable = showDrank = true;
     refreshButtonTexts();
     refreshMarkers();
+}
+
+function removeFountain(fontaineID) {
+    $.ajax({
+        url: "./PHPScripts/deleteFontaine.php",
+        method: 'POST',
+        data: { "fontaineID" : fontaineID },
+        success: (data) => {
+            console.log("deleteSuccess");
+        }
+    });
 }

@@ -6,17 +6,16 @@
         return $geom->out('json');
     }
 
+    $groupeID = isset($_GET["groupeID"]) ? $_GET["groupeID"] : null;  
+    $userID = isset($_GET["userID"]) ? $_GET["userID"] : null;  
 
-    $groupeID = isset($_POST["groupeID"]) ? $_POST["groupeID"] : null;  
-    $userID = isset($_POST["userID"]) ? $_POST["userID"] : null;  
-
+    $groupeID = intval($groupeID);
+    $userID = intval($userID);
 
     $fontaines = array();
 
-
     getFontaines($groupeID, $userID, $fontaines);
 
-    //echo var_dump($fontaines);
     header('Content-Type: application/json');
     echo json_encode($fontaines);
     exit;
@@ -26,10 +25,9 @@ function getFontaines($groupeID, $userID, &$fontaines = array()) {
     require "connectDB.php";
     $sql = "SELECT F.ID, F.Disponible, F.Rue, AsWKB(F.Coords) AS Coords, F.ID_Groupe, FB.ID_Utilisateur 
             FROM FONTAINE F LEFT JOIN FONTAINES_BUES FB ON FB.ID_Fontaine=F.ID 
-            WHERE (ISNULL(F.ID_Groupe)=1 OR F.ID_Groupe=:groupeID) AND (ISNULL(FB.ID_Utilisateur)=1 OR FB.ID_Utilisateur=:userID)";
+            WHERE (ISNULL(F.ID_Groupe)=1 OR F.ID_Groupe=:groupeID)";
     $commande = $pdo->prepare($sql);
     $commande->bindparam(':groupeID', $groupeID);
-    $commande->bindparam(':userID', $userID);
 
     try {
         $bool = $commande->execute();

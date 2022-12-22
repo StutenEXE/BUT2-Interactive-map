@@ -29,6 +29,8 @@
     <body>
         <header>
             <h1>Bienvenue sur notre carte interactive - <?php echo $pseudo ?></h1>
+            <a href="./params.page.php">Parametres</a>
+            <a href="./login.page.php">Deconnexion</a>
         </header>
 
         <div id="MapContainer">  

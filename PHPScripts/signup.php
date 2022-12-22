@@ -5,6 +5,8 @@
 	$mdp =isset($_POST['mdp']) ? $_POST['mdp'] : '';
 	$mdpVerif = isset($_POST['mdp-validation']) ? $_POST['mdp-validation'] : '';
 
+	$profil = array();
+
 	if (verifChampVide($pseudo, $mdp, $mdpVerif)) {
 		header("Location: ../signup.page.php?error=champVide");
 		exit();
@@ -13,7 +15,7 @@
 		header("Location: ../signup.page.php?error=pseudoInvalide");
 		exit();
 	}
-	if (verifPseudoExistant($pseudo)) {
+	if (verifPseudoExistant($pseudo, $profil)) {
 		header("Location: ../signup.page.php?error=pseudoExistant");
 		exit();
 	}
@@ -40,8 +42,7 @@
 		return !preg_match("/^[a-zA-Z0-9]*$/", $pseudo);
 	}
 
-
-	function verifPseudoExistant($pseudo) {
+	function verifPseudoExistant($pseudo, &$profil = array()) {
 		// Connection a la BD ci-dessous
 		require("connectDB.php");
 		$sql = "SELECT * FROM UTILISATEUR where Pseudo=:pseudo";
@@ -62,7 +63,8 @@
 		if (count($resultat) > 0) {
 			return true;
 		}
-	    return false;
+		$profil = $resultat[0];
+		return false;
 	}
 
 	function verifMdpInf8Chars($mdp) {
