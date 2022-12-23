@@ -3,6 +3,7 @@
 
 	$pseudo = isset($_POST['pseudo'])?($_POST['pseudo']):'';
 	$mdp = isset($_POST['mdp'])?($_POST['mdp']):'';
+	
 	$profil = array();
 
 	if (verifChampVide($pseudo, $mdp)) {
@@ -46,9 +47,7 @@
 		if (count($resultat) == 0) {
 			return true;
 		}
-		else {
-			$profil = $resultat[0];
-			return false;
-		}
+		$profil = $resultat[0];
+		return false;
 	}
 ?>
