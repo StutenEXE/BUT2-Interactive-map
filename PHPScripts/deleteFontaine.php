@@ -4,8 +4,7 @@
     require("connectDB.php");
     $sql = "DELETE FROM FONTAINE WHERE ID=:fontaineID";
     $commande = $pdo->prepare($sql);
-    $commande->bindparam(':codeGroupe', $_SESSION['data']['codeGroupe']);
-    $commande->bindparam(':userID', $_SESSION['data']['userID']);
+    $commande->bindparam(':fontaineID', $fontaineID);
     
     try {
         $commande->execute();

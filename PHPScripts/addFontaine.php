@@ -1,4 +1,10 @@
 <?php
+    include_once('geoPHP/geoPHP.inc');
+    function wkb_to_json($wkb) {
+        $geom = geoPHP::load($wkb,'wkb');
+        return $geom->out('json');
+    }
+
 
     $coords = isset($_GET['coordinates']) ? $_GET['coordinates'] : "";
     $disponible = isset($_GET['disponible']) ? $_GET['disponible'] : "";
@@ -19,10 +25,40 @@
     
     try {
         $bool = $commande->execute();
-        if ($bool) print('yes');
+        if ($bool) {
+            $fontaineID = $pdo->lastInsertId();
+            getFontaine($fontaineID);
+        }
         else print('no');
         exit();
     }
     catch (PDOException $e) {
         exit();
+    }
+
+    function getFontaine($fontaineID) {
+        require "connectDB.php";
+        $sql = "SELECT F.ID, F.Disponible, F.Rue, AsWKB(F.Coords) AS Coords, F.ID_Groupe, FB.ID_Utilisateur 
+                FROM FONTAINE F LEFT JOIN FONTAINES_BUES FB ON FB.ID_Fontaine=F.ID 
+                WHERE F.ID=:fontaineID";
+        $commande = $pdo->prepare($sql);
+        $commande->bindparam(':fontaineID', $fontaineID);
+
+        try {
+            $bool = $commande->execute();
+            if ($bool) {
+                $row = $commande->fetch(PDO::FETCH_ASSOC);
+                $fontaine = $row;
+                unset($fontaine['Coords']);
+                unset($fontaine['Disponible']);
+
+                $fontaine["Coords"] = json_decode(wkb_to_json($row['Coords']));
+                $fontaine["Disponible"] = $row["Disponible"] == "1" ? true : false;
+                echo json_encode($fontaine);
+            }
+        }
+        catch (PDOException $e) {
+            header("Location: ../home.page.php?error=erreurBD");
+            exit();
+        }
     }

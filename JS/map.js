@@ -58,11 +58,11 @@ let geocodeService;
 
 
 function Fontaine(fontaine) {
-    this.id = fontaine.id;
+    this.id = fontaine.ID;
     this.geoJSONData = fontaine.Coords;
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
-    this.isDefault = fontaine.ID_Groupe == null;
+    this.groupeID = fontaine.ID_Groupe == null;
     this.bu = fontaine.ID_Utilisateur != null;
 }
 
@@ -175,7 +175,6 @@ function putUserCircleMarker(showPos) {
 }
 
 function getDataFontaines() {
-    // Fontaines pas bues
     $.ajax({
         url: `./PHPScripts/getFontaines.php`,
         type: 'GET',
@@ -309,8 +308,6 @@ function handleHoverOutArrondissement(event) {
 function createNewFountain(event) {
     activateGeoCodeService();
 
-    console.log('dblclick')
-
     point = [event.latlng.lat, event.latlng.lng];
     arrond = getArrondPoint(point);
 
@@ -325,36 +322,26 @@ function createNewFountain(event) {
             voie = result.address.Match_addr.split(",")[0] != null ?
                 result.address.Match_addr.split(",")[0] : result.address.Match_addr;
 
-            let newFountain = new Fontaine({
-                id: null,
-                Coords: {
-                    coordinates: geoPoint,
-                    type: "Point"
-                },
-                Disponible: "OUI",
-                Rue: voie,
-                ID_Utilisateur: null,
-                ID_Groupe: $("#ID_Groupe").text()
-            });
-
-            console.log(newFountain.isDefault);
-
             $.ajax({
                 url: "./PHPScripts/addFontaine.php",
                 type: "GET",
                 data:  {
-                    coordinates: newFountain.geoJSONData.coordinates,
+                    coordinates: geoPoint,   
                     disponible: true,
-                    rue: newFountain.rue,
-                    groupeID: newFountain.isDefault
+                    rue: voie,
+                    groupeID: $("#ID_Groupe").text()
                 },
-                success: (data) => console.log("Creation success"),
+                dataType: 'json',
+                success: (fontaine) => {
+                    console.log(fontaine);
+                    if (arrond != null) {
+                        fontainesData[arrond].data.push((new Fontaine(fontaine)));
+                        createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
+                        refreshMarkers();
+                    }
+                },
                 error: (data) => console.log("failed")
             });
-
-            fontainesData[arrond].data.push(newFountain);
-
-            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
         });
     }
 }
@@ -381,7 +368,7 @@ function createFountainMarkerText(marker, arrond, idx) {
                             <button class="popup-btn popup-btn-dispo" onclick="toggleDispoFontaine(${arrond}, ${idx})">
                                 Rendre ${fontaine.disponible ? "indisponible" : "disponible"}
                             </button>
-                            ${fontaine.isDefault ? "default" : 'not default'}
+                            ${fontaine.groupeID ? "" : "<button class='popup-btn popup-btn-remove' onclick='removeFontaine(" + arrond + "," + idx + ")'>Supprimer</button>"}
                         </div>
                     </div>`), {
         className: "popup"
@@ -599,13 +586,14 @@ function handleClickShowAll() {
     refreshMarkers();
 }
 
-function removeFountain(fontaineID) {
+function removeFontaine(arrond, indexFontaine) {
     $.ajax({
         url: "./PHPScripts/deleteFontaine.php",
         method: 'POST',
-        data: { "fontaineID" : fontaineID },
+        data: { "fontaineID" : fontainesData[arrond].data[indexFontaine].id },
         success: (data) => {
-            console.log("deleteSuccess");
+            fontainesData[arrond].data.splice(indexFontaine, 1);
+            refreshMarkers();
         }
     });
 }
