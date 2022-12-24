@@ -133,11 +133,10 @@ function setupArrondissementPolygons() {
                     arrondissement: Number(arrondissement.fields.c_ar) - 1,
                     data: []
                 };
-                
-                // On recupere desormais les fontaines, on le fait ici afin d'aviter que
-                // les arrondissements ne soient pas encore chargés
-                getDataFontaines();
             }
+            // On recupere desormais les fontaines, on le fait ici afin d'aviter que
+            // les arrondissements ne soient pas encore chargés
+            getDataFontaines();
         }
     );
 }
