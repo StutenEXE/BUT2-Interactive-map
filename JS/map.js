@@ -78,8 +78,6 @@ function init() {
 
     setupArrondissementPolygons();
 
-    getDataFontaines();
-
     zoom = {
         start: map.getZoom(),
         end: map.getZoom()
@@ -135,6 +133,10 @@ function setupArrondissementPolygons() {
                     arrondissement: Number(arrondissement.fields.c_ar) - 1,
                     data: []
                 };
+                
+                // On recupere desormais les fontaines, on le fait ici afin d'aviter que
+                // les arrondissements ne soient pas encore chargés
+                getDataFontaines();
             }
         }
     );
@@ -197,9 +199,6 @@ function getDataFontaines() {
 }
 
 function getArrondPoint(point) {
-    while (arrondissementsPoly.length == undefined) {
-        console.log("wait");
-    }
     for (idx = 0; idx < arrondissementsPoly.length; idx++) {
         // sans raycasting si vous voulez tester
         // if(arrondissementsPoly[idx].getBounds().contains(point)) {
