@@ -197,6 +197,9 @@ function getDataFontaines() {
 }
 
 function getArrondPoint(point) {
+    while (arrondissementsPoly.length == undefined) {
+        console.log("wait");
+    }
     for (idx = 0; idx < arrondissementsPoly.length; idx++) {
         // sans raycasting si vous voulez tester
         // if(arrondissementsPoly[idx].getBounds().contains(point)) {
@@ -388,9 +391,17 @@ function toggleDispoFontaine(arrond, idx) {
 
 function toggleDrink(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    fontaine.bu = !fontaine.bu;
-    removeFountainMarkers();
-    showFountainMarkersInArrond(lastArrondChosen);
+    $.ajax({
+        url: './PHPScripts/updateFontaineBu.php',
+        type: 'GET',
+        data: {
+            fontaineID: fontaine.id
+        },
+        success: (data) => {
+            fontaine.bu = !fontaine.bu;
+            refreshMarkers();
+        }
+    })
 }
 
 
