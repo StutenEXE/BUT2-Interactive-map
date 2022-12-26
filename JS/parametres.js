@@ -2,6 +2,7 @@
 let groupeID;
 
 let quitterGroupeBtn;
+let titreNomGroupe;
 
 $(document).ready(init);
 
@@ -10,23 +11,26 @@ function init() {
     aGroupe = $('#ID_Groupe').text() != "";
 
     quitterGroupeBtn = $('#FormQuitterGroupe');
+    titreNomGroupe = $("#titreNomGroupe");
+
+    refreshGroupe()
 }
 
-function quitterGroupe() {
-    aGroupe = false;
-    refreshButtons();
-}
-
-function rejoindreGroupe() {
-    aGroupe = false;
-    refreshButtons();
-}
-
-function refreshButtons() {
-    if (aGroupe) {
-        quitterGroupeBtn.show();
-    }
-    else {
-        quitterGroupeBtn.hide();
-    }
+function refreshGroupe() {
+    $.ajax({
+        url: "./PHPScripts/groupes/getGroupe.php",
+        type: 'GET',
+        dataType: 'json',
+        success: (data) => {
+            console.log(data)
+            if (data.exist) {
+                titreNomGroupe.text(data.groupe.Nom);
+                quitterGroupeBtn.prop('disabled', false);
+            }
+            else {
+                titreNomGroupe.text("Vous n'avez pas encore de groupe");
+                quitterGroupeBtn.prop('disabled', true);
+            }
+        }
+    })
 }

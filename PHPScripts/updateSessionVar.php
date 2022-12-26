@@ -3,7 +3,7 @@
     function putUserInSessionVar($userID) {
         $userID = $userID==NULL ? intval($_SESSION['profil']['ID']) : $userID;
 		require("connectDB.php");
-		$sql = "SELECT * FROM UTILISATEUR WHERE ID=:userID";
+		$sql = "SELECT U.*, G.Nom AS NomGroupe FROM UTILISATEUR U LEFT JOIN GROUPE G ON U.ID_Groupe=G.ID WHERE U.ID=:userID ";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':userID', $userID);
 

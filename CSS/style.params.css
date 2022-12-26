@@ -8,8 +8,21 @@
 .button-form {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin: 10px 15px;
+}
+
+.messageGroupe {
+    /* margin-top: -20px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.messageGroupe > * {
+    margin: 5px;
 }
 
 .text-form {
@@ -17,7 +30,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 25px;
+    padding: 25px;
 }
 
 .form {
@@ -77,6 +90,10 @@ button {
 #BoutonQuitterGroupe {
     color: white;
     background-color: var(--errorBgColor);
+}
+
+#BoutonQuitterGroupe:disabled {
+    filter: blur(10px);
 }
 
 .text-form:not(.first-text-form) {

@@ -7,6 +7,8 @@
     
     try {
         $commande->execute();
+        require("../updateSessionVar.php");
+        putUserInSessionVar(NULL);
         header("Location: ../../params.page.php");
         exit();
     }

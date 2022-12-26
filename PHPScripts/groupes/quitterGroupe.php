@@ -5,7 +5,10 @@
     $groupeID = getIdGroupeUtilisateur($userID);
 
     updateUtilisateur($userID);
-    deleteGroupeSiVide($groupeID);
+    
+    require("../updateSessionVar.php");
+    putUserInSessionVar(NULL);
+    header("Location: ../../params.page.php");
 
 
     function getIdGroupeUtilisateur($userID) {
@@ -46,8 +49,6 @@
 
         try {
             $commande->execute();
-            header("Location: ../../params.page.php");
-            exit();
         }
         catch (PDOException $e) {
             header("Location: ../../params.page.php?error=erreurBD");

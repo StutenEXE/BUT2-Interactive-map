@@ -1,8 +1,8 @@
 <?php
-    session_start();
+    if(session_status() !== PHP_SESSION_ACTIVE) session_start();
     $userID = $_SESSION['profil']['ID'];
-    $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : null ;
-
+    $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : "" ;
+    $groupeName = $_SESSION['profil']['NomGroupe'];
     if ($userID == null) {
         header("Location:./login.page.php");
     }
@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Paramètres</title>
 
     <link rel="stylesheet" href="./CSS/style.css"/>
     <link rel="stylesheet" href="./CSS/style.params.css"/>
@@ -29,9 +29,13 @@
                     Retour
                 </button>
             </form>
+            <div class="messageGroupe">
+                <p>Groupe actuel : </p>
+                <h3 id="titreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
+            </div>
             <!-- Formulaire de départ d'un groupe -->
             <form id="FormQuitterGroupe" action="./PHPScripts/groupes/quitterGroupe.php">
-                <button id="BoutonQuitterGroupe" type="submit" onclick="quitterGroupe()">Quitter groupe</button>
+                <button id="BoutonQuitterGroupe" type="submit" onclick="refreshGroupe()">Quitter groupe</button>
             </form>
         </div>
         <!-- Formulaire de creation de groupe -->
@@ -46,7 +50,7 @@
                         Code du groupe : <input name="codeGroupe" type="text"> 
                     </div>
                 </div>
-                <button class="submit" type="submit" onclick="rejoindreGroupe()"> Soumettre </button>
+                <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
             </form>
         </div>
         <!-- Formulaire d'intégration à un groupe -->
@@ -58,7 +62,7 @@
                         Code du groupe : <input name="codeGroupe" type="text"> 
                     </div>
                 </div>
-                <button class="submit" type="submit" onclick="rejoindreGroupe()"> Soumettre </button>
+                <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
             </form>
         </div>
         <!-- Messages d'erreur -->

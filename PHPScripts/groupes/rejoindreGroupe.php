@@ -20,6 +20,10 @@
 	
 	updateUtilisateur($userID, $codeGroupe);
 
+	require("../updateSessionVar.php");
+    putUserInSessionVar(NULL);
+    header("Location: ../../params.page.php");
+
 	function verifChampVide($codeGroupe) {
 		return $codeGroupe === '';
 	}
@@ -58,4 +62,5 @@
             "userID" => (int) $userID,
             "codeGroupe" => $codeGroupe);
         require("./updateGroupeUtilisateur.php");
+		
     }

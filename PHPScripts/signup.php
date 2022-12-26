@@ -44,7 +44,7 @@
 	function verifPseudoExistant($pseudo) {
 		// Connection a la BD ci-dessous
 		require("connectDB.php");
-		$sql = "SELECT * FROM UTILISATEUR where Pseudo=:pseudo";
+		$sql = "SELECT * FROM UTILISATEUR WHERE Pseudo=:pseudo";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
 		
