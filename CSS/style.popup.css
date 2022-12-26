@@ -1,6 +1,5 @@
 :root {
-    --bgColor: #272838;
-    --textColor: #cecece;
+    --popupBgColor: #272838;
 
     --availableColor: #00AEEF;
     --unavailableColor: #FF2700;
@@ -9,7 +8,7 @@
 
 .leaflet-popup-content-wrapper, 
 .leaflet-popup-tip {
-    background-color: var(--bgColor);
+    background-color: var(--popupBgColor);
     color: var(--textColor);
 }
 
@@ -22,16 +21,21 @@
 .popup-info {
     display: flex;
     flex-direction: column;
+    gap: 10px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    /* gap: 15px; */
 }
+
+.popup-info > * {
+    margin: 5px 0 !important;
+}
+
 .status {
     border-radius: 4px;
     padding: 2px;
     font-weight: 900;
-    color: var(--bgColor);
+    color: var(--popupBgColor);
 }
 
 .popup-dispo .status-dispo {

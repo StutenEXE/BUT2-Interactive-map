@@ -41,7 +41,7 @@
             ?>
         </p>
 
-        <a href="signup.page.php">Pas encore de compte ? Inscirvez-vous ici</a>
+        <a href="signup.page.php">Pas encore de compte ? Inscrivez-vous ici</a>
     </div>
 </body>
 </html>

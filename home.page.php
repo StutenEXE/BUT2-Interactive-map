@@ -25,15 +25,58 @@
         <link rel="stylesheet" href="./CSS/style.css"/>
         <link rel="stylesheet" href="./CSS/style.home.css"/>
         <link rel="stylesheet" href="./CSS/style.popup.css">
+        <link rel="stylesheet" href="./CSS/style.switch.css">
     </head>
     <body>
         <header>
-            <h1>Bienvenue sur notre carte interactive - <?php echo $pseudo ?></h1>
-            <a href="./params.page.php">Parametres</a>
-            <a href="./login.page.php">Deconnexion</a>
+            <h1>Bienvenue - <?php echo $pseudo ?></h1>
+            <div>
+                <a href="./params.page.php">Parametres</a>
+                <a href="./login.page.php">Deconnexion</a>
+            </div>
         </header>
 
         <div id="MapContainer">  
+            <div id="Toolbar">
+                <div class="tool-option">
+                    <p class="tool-text">Fontaines disponibles</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonToggleMarkersDispo" onclick="handleClickToggleMarkersDispo()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tool-option">
+                    <p class="tool-text">Fontaines indisponibles</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonToggleMarkersIndispo" onclick="handleClickToggleMarkersIndispo()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tool-option">
+                    <p class="tool-text">Fontaines auxquelles j'ai bu</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonToggleMarkersDrank" onclick="handleClickToggleDrank()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tool-option">
+                    <p class="tool-text">Fontaines auxquelles mes amis ont bu</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonToggleMarkersFriendsDrank" onclick="handleClickToggleDrankFriends()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tool-option">
+                    <p class="tool-text">Montrer tout</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonShowAll" onclick="handleClickShowAll()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <button id="ButtonRouting" onclick="handleClickRouting()">
+                    Route vers la fontaine la plus proche
+                </button>
+            </div>
             <div id="Map"></div>
                     
             <img id="QuestionMark" src="images/questionmark.png" onclick="handleShowInformation()" alt="information">
@@ -52,24 +95,8 @@
             </div>
 
             <img id="MyPosition" src="images/bullseye.svg" onclick="setupUserPosition()" alt="bullseye" title="My Position">
-
-            <div id="Toolbar">
-                <button id="ButtonRouting" onclick="handleClickRouting()">
-                    Route vers la fontaine la plus proche
-                </button>
-                <button id="ButtonToggleMarkersDispo" onclick="handleClickToggleMarkersDispo()">
-                    <span class="togglableText">Montrer</span> les fontaines indisponibles
-                </button>
-                <button id="ButtonShowOnlyDrank" onclick="handleClickToggleNotDrank()">
-                    <span class="togglableText">Cacher</span> les fontaines auxquelles je n'ai pas bu
-                </button>
-                <button id="ButtonShowAll" onclick="handleClickShowAll()">
-                    Montrer tout
-                </button>
-            </div>
-
         </div>
-        <footer>
+        <footer >
             <h5>Site réalisé par Alexandre Bidaux, Alexis Montculier et Axel Brun</h5>
         </footer>
 

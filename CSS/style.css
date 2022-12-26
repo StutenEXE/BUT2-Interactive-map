@@ -4,7 +4,8 @@
   --darkColor: #213B45;
   --textColor: white;
   --fieldColor: #D9D9D9;
-  --invertBgColor: #d8d7c7;
+
+  --toolbarBgColor: #DBCDB6;
 
   --errorBgColor: #4D0609;
 }
@@ -16,14 +17,6 @@ body {
   background-color: var(--bgColor);
   color: var(--textColor);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 25px;
 }
 
 a {

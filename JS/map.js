@@ -53,6 +53,7 @@ let lastArrondChosen;
 let showUnavailable = true;
 let showAvailable = true;
 let showDrank = true;
+let showFriendsDrank = true;
 let currentRoute;
 let geocodeService;
 
@@ -243,15 +244,19 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
-        if (showUnavailable && !fontainesData[arrond].data[idx].disponible) {
-            createFountainMarker(arrond, idx);
-        }
-        else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+        if (showFriendsDrank && fontainesData[arrond].data[idx].nombreAmisBus > 0) {
             createFountainMarker(arrond, idx);
         }
         else if (showDrank && fontainesData[arrond].data[idx].bu) {
             createFountainMarker(arrond, idx);
         }
+        else if (showUnavailable && !fontainesData[arrond].data[idx].disponible) {
+            createFountainMarker(arrond, idx);
+        }
+        else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+            createFountainMarker(arrond, idx);
+        }
+        
     }
 }
 
@@ -565,21 +570,33 @@ function handleShowInformation() {
     }, 300);
 }
 
-function refreshButtonTexts() {
-    if (showUnavailable) {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Cacher")
-    }
-    else {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Montrer")
-    }
+function refreshButtonStatus() {
+    if (showAvailable) 
+        $("#ButtonToggleMarkersDispo").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersDispo").prop("checked", true);
 
-    if (!showAvailable && !showUnavailable) {
-        $("#ButtonShowOnlyDrank > .togglableText").html("Montrer");
-    }
-    else {
-        $("#ButtonShowOnlyDrank > .togglableText").html("Cacher")
-    }
+    if (showUnavailable)
+        $("#ButtonToggleMarkersIndispo").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersIndispo").prop("checked", true);
+
+    if (showDrank)
+        $("#ButtonToggleMarkersDrank").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersDrank").prop("checked", true);
+
+    if (showFriendsDrank)
+        $("#ButtonToggleMarkersFriendsDrank").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersFriendsDrank").prop("checked", true);
+
+    if (showAvailable && showUnavailable && showDrank && showFriendsDrank)
+        $("#ButtonShowAll").prop("checked", false);
+    else 
+        $("#ButtonShowAll").prop("checked", true);
 }
+
 
 function refreshMarkers() {
     if (lastArrondChosen != null) {
@@ -589,26 +606,32 @@ function refreshMarkers() {
 }
 
 function handleClickToggleMarkersDispo() {
-    showUnavailable = !showUnavailable
-    refreshButtonTexts();
+    showAvailable = !showAvailable;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
+function handleClickToggleMarkersIndispo() {
+    showUnavailable = !showUnavailable
+    refreshButtonStatus();
+    refreshMarkers();
+}
 
-function handleClickToggleNotDrank() {
-    if (showAvailable || showUnavailable) {
-        showAvailable = showUnavailable = false;
-    }
-    else {
-        showAvailable = showUnavailable = true;
-    }
-    refreshButtonTexts();
+function handleClickToggleDrank() {
+    showDrank = !showDrank;
+    refreshButtonStatus();
+    refreshMarkers();
+}
+
+function handleClickToggleDrankFriends() {
+    showFriendsDrank = !showFriendsDrank;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
 function handleClickShowAll() {
-    showAvailable = showUnavailable = showDrank = true;
-    refreshButtonTexts();
+    showAvailable = showUnavailable = showDrank = showFriendsDrank = true;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
