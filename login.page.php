@@ -25,7 +25,6 @@
             </div>
             
         </form>
-
         <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
             <?php
             if (isset($_GET["error"])) {

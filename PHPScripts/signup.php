@@ -29,8 +29,7 @@
 	}
 	
 	insertUtilisateur($pseudo, $mdp);
-
-	$_SESSION['profil'] = array("Pseudo" => $pseudo);
+	
 	header("Location:../home.page.php");
 	
 
@@ -42,7 +41,7 @@
 		return !preg_match("/^[a-zA-Z0-9]*$/", $pseudo);
 	}
 
-	function verifPseudoExistant($pseudo, &$profil = array()) {
+	function verifPseudoExistant($pseudo) {
 		// Connection a la BD ci-dessous
 		require("connectDB.php");
 		$sql = "SELECT * FROM UTILISATEUR where Pseudo=:pseudo";
@@ -63,7 +62,6 @@
 		if (count($resultat) > 0) {
 			return true;
 		}
-		$profil = $resultat[0];
 		return false;
 	}
 
@@ -81,6 +79,40 @@
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
         $commande->bindparam(':mdp', $mdp);
-        $commande->execute();
+
+        try {
+			$bool = $commande->execute();
+			if ($bool) {
+				putUserInSessionVar($pdo->lastInsertId());
+			}
+		}
+		catch (PDOException $e) {
+			header("Location: ../signup.page.php?error=erreurBD");
+			exit();
+		}
+
+		$userID = $pdo->lastInsertId();
+		putUserInSessionVar(intval($userID));
     }
+
+	function putUserInSessionVar($userID) {
+		require("connectDB.php");
+		$_SESSION['profil']['test'] = $userID;
+		$sql = "SELECT * FROM UTILISATEUR WHERE ID=:userID";
+        $commande = $pdo->prepare($sql);
+        $commande->bindparam(':userID', $userID);
+
+		$resultat = array();
+		try {
+			$bool = $commande->execute();
+			if ($bool) {
+				$resultat = $commande->fetchAll(PDO::FETCH_ASSOC); // Tableau de la BD
+			}
+		}
+		catch (PDOException $e) {
+			header("Location: ../signup.page.php?error=erreurBD");
+			exit();
+		}
+		$_SESSION['profil'] = $resultat[0];
+	}
 ?>

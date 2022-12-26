@@ -63,7 +63,8 @@ function Fontaine(fontaine) {
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
     this.groupeID = fontaine.ID_Groupe == null;
-    this.bu = fontaine.ID_Utilisateur != null;
+    this.bu = fontaine.BuIci == 1;
+    this.nombreAmisBus = fontaine.NbAmisBus;
 }
 
 $(document).ready(init);
@@ -177,7 +178,7 @@ function putUserCircleMarker(showPos) {
 
 function getDataFontaines() {
     $.ajax({
-        url: `./PHPScripts/getFontaines.php`,
+        url: `./PHPScripts/fontaines/getFontaines.php`,
         type: 'GET',
         data: {
             groupeID: groupID,
@@ -307,43 +308,49 @@ function handleHoverOutArrondissement(event) {
 }
 
 function createNewFountain(event) {
-    activateGeoCodeService();
+    console.log(groupID);
+    if (groupID == "") {
+        alert("Veuillez rejoindre un groupe pour ajouter des fontaines");
+    }
+    else {
+        activateGeoCodeService();
 
-    point = [event.latlng.lat, event.latlng.lng];
-    arrond = getArrondPoint(point);
+        point = [event.latlng.lat, event.latlng.lng];
+        arrond = getArrondPoint(point);
 
-    geoPoint = [event.latlng.lng, event.latlng.lat];
+        geoPoint = [event.latlng.lng, event.latlng.lat];
 
-    if (arrond != null) {
-        geocodeService.reverse().latlng(event.latlng).run(function (error, result) {
-            if (error) {
-                return;
-            }
+        if (arrond != null) {
+            geocodeService.reverse().latlng(event.latlng).run(function (error, result) {
+                if (error) {
+                    return;
+                }
 
-            voie = result.address.Match_addr.split(",")[0] != null ?
-                result.address.Match_addr.split(",")[0] : result.address.Match_addr;
+                voie = result.address.Match_addr.split(",")[0] != null ?
+                    result.address.Match_addr.split(",")[0] : result.address.Match_addr;
 
-            $.ajax({
-                url: "./PHPScripts/addFontaine.php",
-                type: "GET",
-                data:  {
-                    coordinates: geoPoint,   
-                    disponible: true,
-                    rue: voie,
-                    groupeID: $("#ID_Groupe").text()
-                },
-                dataType: 'json',
-                success: (fontaine) => {
-                    console.log(fontaine);
-                    if (arrond != null) {
-                        fontainesData[arrond].data.push((new Fontaine(fontaine)));
-                        createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
-                        refreshMarkers();
-                    }
-                },
-                error: (data) => console.log("failed")
+                $.ajax({
+                    url: "./PHPScripts/fontaines/addFontaine.php",
+                    type: "GET",
+                    data:  {
+                        coordinates: geoPoint,   
+                        disponible: true,
+                        rue: voie,
+                        groupeID: $("#ID_Groupe").text()
+                    },
+                    dataType: 'json',
+                    success: (fontaine) => {
+                        console.log(fontaine);
+                        if (arrond != null) {
+                            fontainesData[arrond].data.push((new Fontaine(fontaine)));
+                            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
+                            refreshMarkers();
+                        }
+                    },
+                    error: (data) => console.log("failed")
+                });
             });
-        });
+        }
     }
 }
 
@@ -362,7 +369,10 @@ function createFountainMarkerText(marker, arrond, idx) {
                         <b>${fontaine.rue}</b>
                         <div class="popup-info">
                             <p> Disponible : <span class="status status-dispo">${fontaine.disponible ? "OUI" : "NON"}</span> </p> 
-                            <p> Bu ici : <span class="status status-bu">${fontaine.bu ? "OUI" : "NON"}</span> </p> 
+                            <p> Bu ici : <span class="status status-bu">${fontaine.bu ? "OUI" : "NON"}</span> </p>
+                            <p style="display:${fontaine.nombreAmisBus > 0 ? "block" : "none"}">
+                            ${fontaine.nombreAmisBus} de vos amis ${fontaine.nombreAmisBus == 1 ? "a" : "ont"} bu ici
+                            </p> 
                             <button class="popup-btn popup-btn-bu" onclick="toggleDrink(${arrond}, ${idx})">
                                  ${fontaine.bu ? "Je n'ai pas bu ici" : "J'ai bu ici"}
                             </button>
@@ -376,21 +386,28 @@ function createFountainMarkerText(marker, arrond, idx) {
     };
 }
 
-// `<button class='popup-btn popup-btn-remove' onclick='removeFountain(${fontaine.id})'>
-//     Retirer fontaine
-// </button>`
+
 
 function toggleDispoFontaine(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    fontaine.disponible = !fontaine.disponible;
-    removeFountainMarkers();
-    showFountainMarkersInArrond(lastArrondChosen);
+    $.ajax({
+        url: "./PHPScripts/fontaines/updateDispoFontaine.php",
+        type: "GET",
+        data: {
+            fontaineID: fontaine.id
+        },
+        success: (data) => {
+            fontaine.disponible = !fontaine.disponible;
+            refreshMarkers();
+        }
+    })
 }
 
 function toggleDrink(arrond, idx) {
+    console.log(userID + " " + groupID)
     let fontaine = fontainesData[arrond].data[idx];
     $.ajax({
-        url: './PHPScripts/updateFontaineBu.php',
+        url: './PHPScripts/fontaines/updateFontaineBu.php',
         type: 'GET',
         data: {
             fontaineID: fontaine.id
@@ -597,10 +614,11 @@ function handleClickShowAll() {
 
 function removeFontaine(arrond, indexFontaine) {
     $.ajax({
-        url: "./PHPScripts/deleteFontaine.php",
+        url: "./PHPScripts/fontaines/deleteFontaine.php",
         method: 'POST',
         data: { "fontaineID" : fontainesData[arrond].data[indexFontaine].id },
         success: (data) => {
+            console.log(data);
             fontainesData[arrond].data.splice(indexFontaine, 1);
             refreshMarkers();
         }

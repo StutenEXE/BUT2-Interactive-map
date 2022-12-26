@@ -1,8 +1,8 @@
 <?php
     session_start();
+    $id = isset($_SESSION['profil']['ID']) ? $_SESSION['profil']['ID'] : header("Location: ./login.page.php");
     $pseudo = $_SESSION['profil']['Pseudo'];
-    $id = $_SESSION['profil']['ID'];
-    $ID_Groupe = $_SESSION['profil']['ID_Groupe'];
+    $ID_Groupe = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : null ;
 ?>
 
 <!DOCTYPE html>

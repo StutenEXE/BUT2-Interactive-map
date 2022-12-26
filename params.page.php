@@ -30,7 +30,7 @@
         
     </form>
 
-    <form id="FormRejoindreGroupe" action="PHPScripts/rejoindreGroupe.php" method="post">
+    <form id="FormRejoindreGroupe" action="PHPScripts/groupes/rejoindreGroupe.php" method="post">
         <input name="codeGroupe" type="text"> Code du groupe
         <button type="submit" value="soumettre" onclick="reload()"> Soumettre </button>
     </form>
