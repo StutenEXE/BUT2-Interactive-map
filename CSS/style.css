@@ -47,6 +47,10 @@ h5 {
   background-color: var(--errorBgColor);
 }
 
+input {
+  border: none;
+}
+
 input:focus{
   outline: none;
 }
