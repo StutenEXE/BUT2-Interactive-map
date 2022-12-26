@@ -32,7 +32,7 @@ function getFontaines($groupeID, $userID, &$fontaines = array()) {
         WHERE FB3.ID_Fontaine=F.ID AND FB3.ID_Utilisateur=:userID) AS BuIci 
     FROM FONTAINE F LEFT JOIN FONTAINES_BUES FB ON FB.ID_Fontaine=F.ID 
     WHERE (ISNULL(F.ID_Groupe)=1 OR F.ID_Groupe=:groupeID) 
-        AND (ISNULL(FB.ID_Utilisateur)=1 OR FB.ID_Utilisateur IN (SELECT U.ID FROM Utilisateur U WHERE U.ID_Groupe=:groupeID))";
+        AND (ISNULL(FB.ID_Utilisateur)=1 OR FB.ID_Utilisateur IN (SELECT U.ID FROM Utilisateur U WHERE U.ID_Groupe=:groupeID OR U.ID=:userID))";
     $commande = $pdo->prepare($sql);
     $commande->bindparam(':groupeID', $groupeID);
     $commande->bindparam(':userID', $userID);
