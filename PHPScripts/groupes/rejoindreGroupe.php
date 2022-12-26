@@ -10,7 +10,7 @@
 		exit();
 	}
 	if (verifCodePas5Chars($codeGroupe)) {
-		header("Location: ../../params.page.php?error=code5PasChars");
+		header("Location: ../../params.page.php?error=codePas5Chars");
 		exit();
 	}
 	if (verifCodeInexistant($codeGroupe)) {
@@ -44,7 +44,7 @@
 			}
 		}
 		catch (PDOException $e) {
-			header("Location: ../../signup.page.php?error=erreurBD");
+			header("Location: ../../params.page.php?error=erreurBD");
 			exit();
 		}
 		if (count($resultat) > 0) {
