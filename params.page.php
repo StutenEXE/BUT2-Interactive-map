@@ -1,6 +1,7 @@
 <?php
     session_start();
     $userID = $_SESSION['profil']['ID'];
+    $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : null ;
 
     if ($userID == null) {
         header("Location:./login.page.php");
@@ -16,65 +17,86 @@
     <title>Login</title>
 
     <link rel="stylesheet" href="./CSS/style.css"/>
+    <link rel="stylesheet" href="./CSS/style.params.css"/>
 </head>
 <body>
-    <button onclick="window.location.href='./home.page.php'">Retour</button>
-    <hr>
-    <form id="FormChangerPseudo" action="PHPScripts/?" method="post">
-        
-    </form>
-    <hr>
-    <form id="FormChangeMDP" action="PHPScripts/?" method="post">
-        
-    </form>
-    <hr>
-    <!-- Formulaire de creation de groupe -->
-    <form id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
-        <input name="nomGroupe" type="text"> Nom du groupe
-        <input name="codeGroupe" type="text"> Code du groupe
-        <button type="submit" onclick="reload()"> Soumettre </button>
-    </form>
-    <hr>
-    <!-- Formulaire d'intégration à un groupe -->
-    <form id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
-        <input name="codeGroupe" type="text"> Code du groupe
-        <button type="submit" onclick="reload()"> Soumettre </button>
-    </form>
-    <hr>
-    <!-- Messages d'erreur -->
-    <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
-    <?php
-        if (isset($_GET["error"])) {
-            if ($_GET["error"] == "champVide") {
-                echo "Veuillez renseigner tous les champs";
+    <div class="container">
+        <div class="button-form">
+            <!-- Formulaire pour quitter la page -->
+            <form id="FormQuitterPage" action="PHPScripts/groupes/quitterPageParams.php" method="post">
+                <button id="BtnRetour" type="submit" onclick="window.location.href='./home.page.php'">
+                    <img id="flech-back" src="./images/fleche-back.png"></img>
+                    Retour
+                </button>
+            </form>
+            <!-- Formulaire de départ d'un groupe -->
+            <form id="FormQuitterGroupe" action="./PHPScripts/groupes/quitterGroupe.php">
+                <button id="BoutonQuitterGroupe" type="submit" onclick="quitterGroupe()">Quitter groupe</button>
+            </form>
+        </div>
+        <!-- Formulaire de creation de groupe -->
+        <div class="text-form first-text-form">
+            <h3 class="form-title">Créer un groupe</h3>
+            <form class="form" id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
+                <div class="fields">    
+                    <div class="input-field">
+                        Nom du groupe : <input name="nomGroupe" type="text">
+                    </div>
+                    <div class="input-field">
+                        Code du groupe : <input name="codeGroupe" type="text"> 
+                    </div>
+                </div>
+                <button class="submit" type="submit" onclick="rejoindreGroupe()"> Soumettre </button>
+            </form>
+        </div>
+        <!-- Formulaire d'intégration à un groupe -->
+        <div class="text-form">
+            <h3 class="form-title">Rejoindre un groupe</h3>
+            <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
+                <div class="fields">     
+                    <div class="input-field">
+                        Code du groupe : <input name="codeGroupe" type="text"> 
+                    </div>
+                </div>
+                <button class="submit" type="submit" onclick="rejoindreGroupe()"> Soumettre </button>
+            </form>
+        </div>
+        <!-- Messages d'erreur -->
+        <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
+        <?php
+            if (isset($_GET["error"])) {
+                if ($_GET["error"] == "champVide") {
+                    echo "Veuillez renseigner tous les champs";
+                }
+                else if ($_GET["error"] == "codeInexistant")  {
+                    echo "Ce code de groupe n'existe pas";
+                }
+                else if ($_GET["error"] == "codePas5Chars") {
+                    echo "Le code du groupe doit faire 5 caractères";
+                }
+                else if ($_GET["error"] == "nomSup20Chars") {
+                    echo "Le nom du groupe doit de moins de 20 caractères";
+                }
+                else if ($_GET["error"] == "codeExisteDeja") {
+                    echo "Ce code de groupe est déjà pris";
+                }
+                else if ($_GET["error"] == "erreurBD") {
+                    echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                }
+                else {
+                    echo "Une erreur inconnue est survenue";
+                }
             }
-            else if ($_GET["error"] == "codeInexistant")  {
-                echo "Ce code de groupe n'existe pas";
-            }
-            else if ($_GET["error"] == "codePas5Chars") {
-                echo "Le code du groupe doit faire 5 caractères";
-            }
-            else if ($_GET["error"] == "nomSup20Chars") {
-                echo "Le nom du groupe doit de moins de 20 caractères";
-            }
-            else if ($_GET["error"] == "codeExisteDeja") {
-                echo "Ce code de groupe est déjà pris";
-            }
-            else if ($_GET["error"] == "erreurBD") {
-                echo "Quelque chose n'a pas marché. Veuillez réessayer";
-            }
-            else {
-                echo "Une erreur inconnue est survenue";
-            }
-        }
-        ?>
-        </p>
-    <hr>
-    <!-- Formulaire de départ d'un groupe -->
-    <form id="FormQuitterGroupe" action="./PHPScripts/groupes/quitterGroupe.php">
-        <button type="submit">Quitter groupe</button>
-    </form>
-    <hr>
+            ?>
+            </p>
+
+        <div id="session-data" style="display:none;">
+            <span id="ID_User"><?php echo $userID ?></span>
+            <span id="ID_Groupe"><?php echo $groupeID ?></span>
+        </div>
+    </div>
 </body>
+  <!-- Script JQuery  -->
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="./JS/parametres.js"></script>
 </html>

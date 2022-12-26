@@ -1,8 +1,8 @@
 <?php
     session_start();
-    $id = isset($_SESSION['profil']['ID']) ? $_SESSION['profil']['ID'] : header("Location: ./login.page.php");
+    $userID = isset($_SESSION['profil']['ID']) ? $_SESSION['profil']['ID'] : header("Location: ./login.page.php");
     $pseudo = $_SESSION['profil']['Pseudo'];
-    $ID_Groupe = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : null ;
+    $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : null ;
 ?>
 
 <!DOCTYPE html>
@@ -74,8 +74,8 @@
         </footer>
 
         <div id="session-data" style="display:none;">
-            <span id="ID_User"><?php echo $id ?></span>
-            <span id="ID_Groupe"><?php echo $ID_Groupe ?></span>
+            <span id="ID_User"><?php echo $userID ?></span>
+            <span id="ID_Groupe"><?php echo $groupeID ?></span>
         </div>
 
         <!-- Script Leaflet -->

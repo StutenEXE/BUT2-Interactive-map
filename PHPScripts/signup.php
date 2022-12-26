@@ -1,5 +1,5 @@
 <?php
-	session_start();
+	if(session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 	$pseudo = isset($_POST['pseudo']) ? $_POST['pseudo'] : '';
 	$mdp =isset($_POST['mdp']) ? $_POST['mdp'] : '';
@@ -83,36 +83,17 @@
         try {
 			$bool = $commande->execute();
 			if ($bool) {
-				putUserInSessionVar($pdo->lastInsertId());
+				require("./updateSessionVar.php");
+				putUserInSessionVar(intval($pdo->lastInsertId()));
+			}
+			else {
+				header("Location: ../signup.page.php?error=unknown");
+				exit();
 			}
 		}
 		catch (PDOException $e) {
 			header("Location: ../signup.page.php?error=erreurBD");
 			exit();
 		}
-
-		$userID = $pdo->lastInsertId();
-		putUserInSessionVar(intval($userID));
     }
-
-	function putUserInSessionVar($userID) {
-		require("connectDB.php");
-		$_SESSION['profil']['test'] = $userID;
-		$sql = "SELECT * FROM UTILISATEUR WHERE ID=:userID";
-        $commande = $pdo->prepare($sql);
-        $commande->bindparam(':userID', $userID);
-
-		$resultat = array();
-		try {
-			$bool = $commande->execute();
-			if ($bool) {
-				$resultat = $commande->fetchAll(PDO::FETCH_ASSOC); // Tableau de la BD
-			}
-		}
-		catch (PDOException $e) {
-			header("Location: ../signup.page.php?error=erreurBD");
-			exit();
-		}
-		$_SESSION['profil'] = $resultat[0];
-	}
 ?>
