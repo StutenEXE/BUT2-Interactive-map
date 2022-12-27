@@ -34,3 +34,16 @@ function refreshGroupe() {
         }
     })
 }
+
+function copyCodeToClipboard() {
+    code = $('#copy-btn').text();
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(code);
+        return;
+    }
+    navigator.clipboard.writeText(code).then(function() {
+        console.log('Async: Copying to clipboard was successful!');
+      }, function(err) {
+        console.error('Async: Could not copy text: ', err);
+      });
+}

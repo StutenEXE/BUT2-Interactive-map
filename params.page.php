@@ -5,6 +5,7 @@
     $userID = $_SESSION['profil']['ID'];
     $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : "" ;
     $groupeName = $_SESSION['profil']['NomGroupe'];
+    $groupeCode = $_SESSION['profil']['CodeGroupe'];
     if ($userID == null) {
         header("Location:./login.page.php");
     }
@@ -20,6 +21,7 @@
 
     <link rel="stylesheet" href="./CSS/style.css"/>
     <link rel="stylesheet" href="./CSS/style.params.css"/>
+    <link rel="stylesheet" href="./CSS/style.copierbtn.css"/>
 </head>
 <body>
     <div class="container">
@@ -36,10 +38,22 @@
                 <h3 id="titreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
             </div>
             <!-- Formulaire de départ d'un groupe -->
-            <form id="FormQuitterGroupe" action="./PHPScripts/groupes/quitterGroupe.php">
-                <button id="BoutonQuitterGroupe" type="submit" onclick="refreshGroupe()">Quitter groupe</button>
-            </form>
+            <div class="slot" style="width:150px;">
+            <?php echo $groupeName != null ?
+            "<form id='FormQuitterGroupe' action='./PHPScripts/groupes/quitterGroupe.php'>
+                <button id='BoutonQuitterGroupe' type='submit' onclick='refreshGroupe()'>Quitter groupe</button>
+            </form>" : "";
+            ?>
+            </div>
         </div>
+        <!-- Bouton de copie du code de groupe -->
+        <?php echo $groupeName != null ?
+        "<div id='CopierCode'>
+            Clique pour partager ton code de groupe
+            <input type='checkbox' id='copy' />
+            <label id='copy-btn' onclick='copyCodeToClipboard()'>$groupeCode</label>
+        </div>" : "";
+        ?>
         <!-- Formulaire de creation de groupe -->
         <div class="text-form first-text-form">
             <h3 class="form-title">Créer un groupe</h3>
