@@ -1,0 +1,104 @@
+.container {
+    background-color: var(--accentColor);
+    margin: 20px 50px;
+    border-radius: 20px; 
+    padding: 10px;
+
+    flex-direction: column !important;
+} 
+  
+
+.button-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 10px 15px;
+}
+
+.messageGroupe {
+    /* margin-top: -20px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.messageGroupe > * {
+    margin: 5px;
+}
+
+.text-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+}
+
+.form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-items: center;
+    justify-content: space-around;
+    width: 75%;
+}
+
+#BtnRetour {
+    width: 100px;
+    background-color: var(--darkColor);
+    color: var(--textColor);
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    justify-content: center;
+}
+
+button {
+    cursor: pointer;
+    width: 150px;
+    height: 27px;
+    padding: 5px 0px;
+    border-radius: 20px;
+    border: none;
+}
+
+.submit {
+    background-color: var(--bgColor);
+    color: var(--textColor);
+}
+
+.input-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.input-field > input {
+    background-color: var(--fieldColor);
+    height: 25px;
+    width: 200px;
+    /* outline: none; */
+}
+
+#flech-back {
+    width: 1em;
+    filter: invert(360);
+    transition: 300ms;
+}
+
+#BoutonQuitterGroupe {
+    color: white;
+    background-color: var(--errorBgColor);
+}
+
+#BoutonQuitterGroupe:disabled {
+    cursor: default;
+}
+
+.text-form:not(.first-text-form) {
+    border-top: 1px solid black;
+}

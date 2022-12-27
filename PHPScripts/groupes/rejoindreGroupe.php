@@ -6,19 +6,23 @@
 
 
 	if (verifChampVide($codeGroupe)) {
-		header("Location: ../params.page.php?error=champVide");
+		header("Location: ../../params.page.php?error=champVide");
 		exit();
 	}
 	if (verifCodePas5Chars($codeGroupe)) {
-		header("Location: ../params.page.php?error=code5PasChars");
+		header("Location: ../../params.page.php?error=codePas5Chars");
 		exit();
 	}
 	if (verifCodeInexistant($codeGroupe)) {
-		header("Location: ../params.page.php?error=codeInexistant");
+		header("Location: ../../params.page.php?error=codeInexistant");
 		exit();
 	}
 	
 	updateUtilisateur($userID, $codeGroupe);
+
+	require("../updateSessionVar.php");
+    putUserInSessionVar(NULL);
+    header("Location: ../../params.page.php");
 
 	function verifChampVide($codeGroupe) {
 		return $codeGroupe === '';
@@ -31,7 +35,7 @@
 
 	function verifCodeInexistant($codeGroupe) {
 		// Connection a la BD ci-dessous
-		require("connectDB.php");
+		require("../connectDB.php");
 		$sql = "SELECT * FROM GROUPE where Code=:code";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':code', $codeGroupe );
@@ -44,7 +48,7 @@
 			}
 		}
 		catch (PDOException $e) {
-			header("Location: ../signup.page.php?error=erreurBD");
+			header("Location: ../../params.page.php?error=erreurBD");
 			exit();
 		}
 		if (count($resultat) > 0) {
@@ -58,4 +62,5 @@
             "userID" => (int) $userID,
             "codeGroupe" => $codeGroupe);
         require("./updateGroupeUtilisateur.php");
+		
     }

@@ -7,26 +7,24 @@
     <title>Login</title>
 
     <link rel="stylesheet" href="./CSS/style.css"/>
+    <link rel="stylesheet" href="./CSS/style.form.css"/>
+
 </head>
 <body>
-    <div class = "corps">
-        <form class="formLogin" action="PHPScripts/login.php" method="post">
-            <h1>Connectez vous<h1>
-            <h2>Pseudo : </h2>
-            <br>
-            <input name="pseudo" type="text"> 
-            <br>
-            <h2>Mot de passe :</h2>
-            <br>
-            <input name="mdp" type="password"> 
-            <br>
-            <div class="soumettre">
-                <button class="loginButton" type= "submit"  value="soumettre">Se Connecter</button>
+    <div class = "container">
+        <img src="./images/eau_login.jpg"/>
+        <form class="form-login" action="PHPScripts/login.php" method="post">
+            <h3>Connectez vous</h3>
+            <div class="input-field">
+                Pseudo : <input name="pseudo" type="text">
             </div>
-            
-        </form>
-
-        <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
+            <div class="input-field"> 
+                Mot de passe : <input name="mdp" type="password"> 
+            </div>
+            <div class="submit-wrapper">
+                <button class="submit" type= "submit">Se connecter</button>
+            </div>
+            <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
             <?php
             if (isset($_GET["error"])) {
                 if ($_GET["error"] == "champVide") {
@@ -40,9 +38,10 @@
                 }
             }
             ?>
-        </p>
+            </p>
 
-        <a href="signup.page.php">Pas encore de compte ? Inscirvez-vous ici</a>
+            <a href="signup.page.php">Pas encore de compte ? Inscrivez-vous ici</a>
+        </form>
     </div>
 </body>
 </html>

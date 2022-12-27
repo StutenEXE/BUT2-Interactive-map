@@ -53,17 +53,19 @@ let lastArrondChosen;
 let showUnavailable = true;
 let showAvailable = true;
 let showDrank = true;
+let showFriendsDrank = true;
 let currentRoute;
 let geocodeService;
 
 
 function Fontaine(fontaine) {
-    this.id = fontaine.id;
+    this.id = fontaine.ID;
     this.geoJSONData = fontaine.Coords;
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
-    this.isDefault = fontaine.ID_Groupe == null;
-    this.bu = fontaine.ID_Utilisateur != null;
+    this.groupeID = fontaine.ID_Groupe == null;
+    this.bu = fontaine.BuIci == 1;
+    this.nombreAmisBus = fontaine.NbAmisBus;
 }
 
 $(document).ready(init);
@@ -77,8 +79,6 @@ function init() {
     setupMap();
 
     setupArrondissementPolygons();
-
-    getDataFontaines();
 
     zoom = {
         start: map.getZoom(),
@@ -136,6 +136,9 @@ function setupArrondissementPolygons() {
                     data: []
                 };
             }
+            // On recupere desormais les fontaines, on le fait ici afin d'aviter que
+            // les arrondissements ne soient pas encore chargés
+            getDataFontaines();
         }
     );
 }
@@ -175,9 +178,8 @@ function putUserCircleMarker(showPos) {
 }
 
 function getDataFontaines() {
-    // Fontaines pas bues
     $.ajax({
-        url: `./PHPScripts/getFontaines.php`,
+        url: `./PHPScripts/fontaines/getFontaines.php`,
         type: 'GET',
         data: {
             groupeID: groupID,
@@ -242,15 +244,19 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
-        if (showUnavailable && !fontainesData[arrond].data[idx].disponible) {
-            createFountainMarker(arrond, idx);
-        }
-        else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+        if (showFriendsDrank && fontainesData[arrond].data[idx].nombreAmisBus > 0) {
             createFountainMarker(arrond, idx);
         }
         else if (showDrank && fontainesData[arrond].data[idx].bu) {
             createFountainMarker(arrond, idx);
         }
+        else if (showUnavailable && !fontainesData[arrond].data[idx].disponible) {
+            createFountainMarker(arrond, idx);
+        }
+        else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+            createFountainMarker(arrond, idx);
+        }
+        
     }
 }
 
@@ -307,55 +313,49 @@ function handleHoverOutArrondissement(event) {
 }
 
 function createNewFountain(event) {
-    activateGeoCodeService();
+    console.log(groupID);
+    if (groupID == "") {
+        alert("Veuillez rejoindre un groupe pour ajouter des fontaines");
+    }
+    else {
+        activateGeoCodeService();
 
-    console.log('dblclick')
+        point = [event.latlng.lat, event.latlng.lng];
+        arrond = getArrondPoint(point);
 
-    point = [event.latlng.lat, event.latlng.lng];
-    arrond = getArrondPoint(point);
+        geoPoint = [event.latlng.lng, event.latlng.lat];
 
-    geoPoint = [event.latlng.lng, event.latlng.lat];
+        if (arrond != null) {
+            geocodeService.reverse().latlng(event.latlng).run(function (error, result) {
+                if (error) {
+                    return;
+                }
 
-    if (arrond != null) {
-        geocodeService.reverse().latlng(event.latlng).run(function (error, result) {
-            if (error) {
-                return;
-            }
+                voie = result.address.Match_addr.split(",")[0] != null ?
+                    result.address.Match_addr.split(",")[0] : result.address.Match_addr;
 
-            voie = result.address.Match_addr.split(",")[0] != null ?
-                result.address.Match_addr.split(",")[0] : result.address.Match_addr;
-
-            let newFountain = new Fontaine({
-                id: null,
-                Coords: {
-                    coordinates: geoPoint,
-                    type: "Point"
-                },
-                Disponible: "OUI",
-                Rue: voie,
-                ID_Utilisateur: null,
-                ID_Groupe: $("#ID_Groupe").text()
+                $.ajax({
+                    url: "./PHPScripts/fontaines/addFontaine.php",
+                    type: "GET",
+                    data:  {
+                        coordinates: geoPoint,   
+                        disponible: true,
+                        rue: voie,
+                        groupeID: $("#ID_Groupe").text()
+                    },
+                    dataType: 'json',
+                    success: (fontaine) => {
+                        console.log(fontaine);
+                        if (arrond != null) {
+                            fontainesData[arrond].data.push((new Fontaine(fontaine)));
+                            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
+                            refreshMarkers();
+                        }
+                    },
+                    error: (data) => console.log("failed")
+                });
             });
-
-            console.log(newFountain.isDefault);
-
-            $.ajax({
-                url: "./PHPScripts/addFontaine.php",
-                type: "GET",
-                data:  {
-                    coordinates: newFountain.geoJSONData.coordinates,
-                    disponible: true,
-                    rue: newFountain.rue,
-                    groupeID: newFountain.isDefault
-                },
-                success: (data) => console.log("Creation success"),
-                error: (data) => console.log("failed")
-            });
-
-            fontainesData[arrond].data.push(newFountain);
-
-            createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
-        });
+        }
     }
 }
 
@@ -374,36 +374,54 @@ function createFountainMarkerText(marker, arrond, idx) {
                         <b>${fontaine.rue}</b>
                         <div class="popup-info">
                             <p> Disponible : <span class="status status-dispo">${fontaine.disponible ? "OUI" : "NON"}</span> </p> 
-                            <p> Bu ici : <span class="status status-bu">${fontaine.bu ? "OUI" : "NON"}</span> </p> 
+                            <p> Bu ici : <span class="status status-bu">${fontaine.bu ? "OUI" : "NON"}</span> </p>
+                            <p style="display:${fontaine.nombreAmisBus > 0 ? "block" : "none"}">
+                            ${fontaine.nombreAmisBus} de vos amis ${fontaine.nombreAmisBus == 1 ? "a" : "ont"} bu ici
+                            </p> 
                             <button class="popup-btn popup-btn-bu" onclick="toggleDrink(${arrond}, ${idx})">
                                  ${fontaine.bu ? "Je n'ai pas bu ici" : "J'ai bu ici"}
                             </button>
                             <button class="popup-btn popup-btn-dispo" onclick="toggleDispoFontaine(${arrond}, ${idx})">
                                 Rendre ${fontaine.disponible ? "indisponible" : "disponible"}
                             </button>
-                            ${fontaine.isDefault ? "default" : 'not default'}
+                            ${fontaine.groupeID ? "" : "<button class='popup-btn popup-btn-remove' onclick='removeFontaine(" + arrond + "," + idx + ")'>Supprimer</button>"}
                         </div>
                     </div>`), {
         className: "popup"
     };
 }
 
-// `<button class='popup-btn popup-btn-remove' onclick='removeFountain(${fontaine.id})'>
-//     Retirer fontaine
-// </button>`
+
 
 function toggleDispoFontaine(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
-    fontaine.disponible = !fontaine.disponible;
-    removeFountainMarkers();
-    showFountainMarkersInArrond(lastArrondChosen);
+    $.ajax({
+        url: "./PHPScripts/fontaines/updateDispoFontaine.php",
+        type: "GET",
+        data: {
+            fontaineID: fontaine.id
+        },
+        success: (data) => {
+            fontaine.disponible = !fontaine.disponible;
+            refreshMarkers();
+        }
+    })
 }
 
 function toggleDrink(arrond, idx) {
+    console.log(userID + " " + groupID)
     let fontaine = fontainesData[arrond].data[idx];
-    fontaine.bu = !fontaine.bu;
-    removeFountainMarkers();
-    showFountainMarkersInArrond(lastArrondChosen);
+    $.ajax({
+        url: './PHPScripts/fontaines/updateFontaineBu.php',
+        type: 'GET',
+        data: {
+            fontaineID: fontaine.id
+        },
+        success: (data) => {
+            fontaine.bu = !fontaine.bu;
+            refreshMarkers();
+        }
+    })
 }
 
 
@@ -552,21 +570,33 @@ function handleShowInformation() {
     }, 300);
 }
 
-function refreshButtonTexts() {
-    if (showUnavailable) {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Cacher")
-    }
-    else {
-        $("#ButtonToggleMarkersDispo > .togglableText").html("Montrer")
-    }
+function refreshButtonStatus() {
+    if (showAvailable) 
+        $("#ButtonToggleMarkersDispo").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersDispo").prop("checked", true);
 
-    if (!showAvailable && !showUnavailable) {
-        $("#ButtonShowOnlyDrank > .togglableText").html("Montrer");
-    }
-    else {
-        $("#ButtonShowOnlyDrank > .togglableText").html("Cacher")
-    }
+    if (showUnavailable)
+        $("#ButtonToggleMarkersIndispo").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersIndispo").prop("checked", true);
+
+    if (showDrank)
+        $("#ButtonToggleMarkersDrank").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersDrank").prop("checked", true);
+
+    if (showFriendsDrank)
+        $("#ButtonToggleMarkersFriendsDrank").prop("checked", false);
+    else 
+        $("#ButtonToggleMarkersFriendsDrank").prop("checked", true);
+
+    if (showAvailable && showUnavailable && showDrank && showFriendsDrank)
+        $("#ButtonShowAll").prop("checked", false);
+    else 
+        $("#ButtonShowAll").prop("checked", true);
 }
+
 
 function refreshMarkers() {
     if (lastArrondChosen != null) {
@@ -576,36 +606,44 @@ function refreshMarkers() {
 }
 
 function handleClickToggleMarkersDispo() {
-    showUnavailable = !showUnavailable
-    refreshButtonTexts();
+    showAvailable = !showAvailable;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
+function handleClickToggleMarkersIndispo() {
+    showUnavailable = !showUnavailable
+    refreshButtonStatus();
+    refreshMarkers();
+}
 
-function handleClickToggleNotDrank() {
-    if (showAvailable || showUnavailable) {
-        showAvailable = showUnavailable = false;
-    }
-    else {
-        showAvailable = showUnavailable = true;
-    }
-    refreshButtonTexts();
+function handleClickToggleDrank() {
+    showDrank = !showDrank;
+    refreshButtonStatus();
+    refreshMarkers();
+}
+
+function handleClickToggleDrankFriends() {
+    showFriendsDrank = !showFriendsDrank;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
 function handleClickShowAll() {
-    showAvailable = showUnavailable = showDrank = true;
-    refreshButtonTexts();
+    showAvailable = showUnavailable = showDrank = showFriendsDrank = true;
+    refreshButtonStatus();
     refreshMarkers();
 }
 
-function removeFountain(fontaineID) {
+function removeFontaine(arrond, indexFontaine) {
     $.ajax({
-        url: "./PHPScripts/deleteFontaine.php",
+        url: "./PHPScripts/fontaines/deleteFontaine.php",
         method: 'POST',
-        data: { "fontaineID" : fontaineID },
+        data: { "fontaineID" : fontainesData[arrond].data[indexFontaine].id },
         success: (data) => {
-            console.log("deleteSuccess");
+            console.log(data);
+            fontainesData[arrond].data.splice(indexFontaine, 1);
+            refreshMarkers();
         }
     });
 }

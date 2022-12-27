@@ -1,5 +1,5 @@
 <?php
-	session_start();
+	if(session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 	$pseudo = isset($_POST['pseudo']) ? $_POST['pseudo'] : '';
 	$mdp =isset($_POST['mdp']) ? $_POST['mdp'] : '';
@@ -29,8 +29,7 @@
 	}
 	
 	insertUtilisateur($pseudo, $mdp);
-
-	$_SESSION['profil'] = array("Pseudo" => $pseudo);
+	
 	header("Location:../home.page.php");
 	
 
@@ -42,10 +41,10 @@
 		return !preg_match("/^[a-zA-Z0-9]*$/", $pseudo);
 	}
 
-	function verifPseudoExistant($pseudo, &$profil = array()) {
+	function verifPseudoExistant($pseudo) {
 		// Connection a la BD ci-dessous
 		require("connectDB.php");
-		$sql = "SELECT * FROM UTILISATEUR where Pseudo=:pseudo";
+		$sql = "SELECT * FROM UTILISATEUR WHERE Pseudo=:pseudo";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
 		
@@ -63,7 +62,6 @@
 		if (count($resultat) > 0) {
 			return true;
 		}
-		$profil = $resultat[0];
 		return false;
 	}
 
@@ -81,6 +79,21 @@
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
         $commande->bindparam(':mdp', $mdp);
-        $commande->execute();
+
+        try {
+			$bool = $commande->execute();
+			if ($bool) {
+				require("./updateSessionVar.php");
+				putUserInSessionVar(intval($pdo->lastInsertId()));
+			}
+			else {
+				header("Location: ../signup.page.php?error=unknown");
+				exit();
+			}
+		}
+		catch (PDOException $e) {
+			header("Location: ../signup.page.php?error=erreurBD");
+			exit();
+		}
     }
 ?>

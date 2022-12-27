@@ -1,5 +1,5 @@
 <?php
-	session_start();
+	if(session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 	$pseudo = isset($_POST['pseudo'])?($_POST['pseudo']):'';
 	$mdp = isset($_POST['mdp'])?($_POST['mdp']):'';
@@ -15,7 +15,6 @@
 		exit();
 	}
 
-	$_SESSION['profil'] = $profil;
 	header("Location: ../home.page.php");
 
 	function verifChampVide($pseudo, $mdp) {
@@ -46,8 +45,11 @@
 
 		if (count($resultat) == 0) {
 			return true;
+		
 		}
-		$profil = $resultat[0];
+
+		require("./updateSessionVar.php");
+		putUserInSessionVar(intval($resultat[0]['ID']));
 		return false;
 	}
 ?>
