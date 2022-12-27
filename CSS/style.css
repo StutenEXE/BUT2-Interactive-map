@@ -12,21 +12,34 @@
 
 html,
 body {
-  height: 100%;
+  height: 100vh;
   margin: 0;
   background-color: var(--bgColor);
   color: var(--textColor);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+.container {
+  background-color: var(--accentColor);
+  margin: 20px 50px;
+  border-radius: 20px; 
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: row;
+
+  max-height: 90vh;
+} 
+
+.input-field {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 a {
   text-decoration: underline;
   color: var(--textColor);
-}
-
-h1 {
-  text-align: center;
-  font-weight: bold;
 }
 
 h5 {
@@ -49,24 +62,33 @@ input:focus{
 }
 
 
+.input-field > input {
+  background-color: var(--fieldColor);
+  height: 25px;
+  width: 200px;
+  /* outline: none; */
+}
+
+
+.submit {
+  background-color: var(--bgColor);
+  color: var(--textColor);
+  cursor: pointer;
+  width: 150px;
+  height: 27px;
+  padding: 5px 0px;
+  border-radius: 20px;
+  border: none;
+}
+
+
 h2 {
   text-align: left;
   margin-bottom: 0;
 }
 
 @media screen and (max-width: 420px) {
-  .formLogin {
+  .form-login {
     font-size: 20px;
-  }
-  .corps {
-    width: auto;
-    margin :0 10%;
-  }
-  h2 {
-    margin-top: 15%;
-    margin-bottom: 0;
-  }
-  h1 {
-    font-size :32px;
   }
 }

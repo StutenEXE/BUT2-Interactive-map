@@ -1,5 +1,7 @@
 <?php
     if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+    require("./PHPScripts/updateSessionVar.php");
+    putUserInSessionVar(NULL);
     $userID = $_SESSION['profil']['ID'];
     $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : "" ;
     $groupeName = $_SESSION['profil']['NomGroupe'];

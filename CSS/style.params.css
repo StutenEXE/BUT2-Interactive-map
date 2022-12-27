@@ -3,7 +3,10 @@
     margin: 20px 50px;
     border-radius: 20px; 
     padding: 10px;
-}
+
+    flex-direction: column !important;
+} 
+  
 
 .button-form {
     display: flex;
@@ -93,7 +96,7 @@ button {
 }
 
 #BoutonQuitterGroupe:disabled {
-    filter: blur(10px);
+    cursor: default;
 }
 
 .text-form:not(.first-text-form) {

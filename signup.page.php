@@ -7,29 +7,28 @@
     <title>Signup</title>
 
     <link rel="stylesheet" href="./CSS/style.css"/>
+    <link rel="stylesheet" href="./CSS/style.form.css"/>
+
 </head>
 <body>
-    <div class = "corps">
-        <form class="formRegister" action="PHPScripts/signup.php" method="post">
-            <h1>Créez un compte</h1>
-            <br>
-            <h2>Pseudo :</h2>
-            <br>
-            <input name="pseudo" type="text"> 
-            <br>
-            <h2>Mot de passe :</h2>
-            <br>
-            <input name="mdp" type="password"> 
-            <br>
-            <h2>Confirmer le mot de passe : </h2>
-            <br>
-            <input name="mdp-validation" type="password"> 
-            <div class = "soumettre">    
-                <button class="signupButton" type="submit" value="soumettre">Créer</button>    
-            </div>
-        </form>
+    <div class = "container">
+        <img src="./images/eau_login.jpg"/>
+        <form class="form-login" action="PHPScripts/signup.php" method="post">
+            <h3>Créez un compte</h3>
 
-        <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
+            <div class="input-field">
+                Pseudo :<input name="pseudo" type="text"> 
+            </div>
+            <div class="input-field">
+                Mot de passe : <input name="mdp" type="password"> 
+            </div>
+            <div class="input-field">
+                Confirmer le mot de passe : <input name="mdp-validation" type="password"> 
+            </div>
+            <div class = "submit-wrapper">    
+                <button class="submit" type="submit">Créer</button>    
+            </div>
+            <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
             <?php
             if (isset($_GET["error"])) {
                 if ($_GET["error"] == "champVide") {
@@ -52,9 +51,10 @@
                 }
             }
             ?>
-        </p>
+            </p>
 
-        <a href="login.page.php">Déjà un compte ? Connectez-vous ici</a>
+            <a href="login.page.php">Déjà un compte ? Connectez-vous ici</a>
+        </form>
     </div>
 </body>
 </html>
