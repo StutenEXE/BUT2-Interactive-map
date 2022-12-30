@@ -54,6 +54,7 @@ let showUnavailable = true;
 let showAvailable = true;
 let showDrank = true;
 let showFriendsDrank = true;
+let showGroupFountains = true;
 let currentRoute;
 let geocodeService;
 
@@ -244,6 +245,7 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
+        console.log(fontainesData[arrond].data[idx].groupID);
         if (showFriendsDrank && fontainesData[arrond].data[idx].nombreAmisBus > 0) {
             createFountainMarker(arrond, idx);
         }
@@ -254,6 +256,9 @@ function showFountainMarkersInArrond(arrond) {
             createFountainMarker(arrond, idx);
         }
         else if (showAvailable && fontainesData[arrond].data[idx].disponible){
+            createFountainMarker(arrond, idx);
+        }
+        else if (showGroupFountains && fontainesData[arrond].data[idx].groupID) {
             createFountainMarker(arrond, idx);
         }
         
@@ -457,7 +462,8 @@ function getClosestFountain(arrond) {
 
     let closestFountain = fontainesData[arrond].data[0];
     for (fontaine of fontainesData[arrond].data) {
-        if (fontaine.disponible) {
+        if (showAvailable == fontaine.disponible 
+            || showUnavailable == fontaine.disponible) {
             let distance = distanceBetweenTwoPoints([
                 fontaine.geoJSONData.coordinates[1],
                 fontaine.geoJSONData.coordinates[0]
@@ -591,7 +597,13 @@ function refreshButtonStatus() {
     else 
         $("#ButtonToggleMarkersFriendsDrank").prop("checked", true);
 
-    if (showAvailable && showUnavailable && showDrank && showFriendsDrank)
+    if (showGroupFountains)
+        $("#ButtonToggleGroupFountains").prop("checked", false);
+    else 
+        $("#ButtonToggleGroupFountains").prop("checked", true);
+
+
+    if (showAvailable && showUnavailable && showDrank && showFriendsDrank && showGroupFountains)
         $("#ButtonShowAll").prop("checked", false);
     else 
         $("#ButtonShowAll").prop("checked", true);
@@ -625,6 +637,12 @@ function handleClickToggleDrank() {
 
 function handleClickToggleDrankFriends() {
     showFriendsDrank = !showFriendsDrank;
+    refreshButtonStatus();
+    refreshMarkers();
+}
+
+function handleClickToggleGroupFountains() {
+    showGroupFountains = !showGroupFountains;
     refreshButtonStatus();
     refreshMarkers();
 }

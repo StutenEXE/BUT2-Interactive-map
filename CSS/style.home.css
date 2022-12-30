@@ -63,8 +63,6 @@ footer {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* align-items: center; */
-    /* gap: 10px; */
 
     background-color: var(--toolbarBgColor);
 }
@@ -143,4 +141,10 @@ footer {
 #ButtonRouting:hover {
     background-color: var(--accentColor);
     border-width: 3px;
+}
+
+@media screen and (max-width: 420px) {
+    .form-login {
+      font-size: 20px;
+    }
 }

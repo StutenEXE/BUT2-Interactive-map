@@ -67,6 +67,13 @@
                     </label>
                 </div>
                 <div class="tool-option">
+                    <p class="tool-text">Fontaines de mon groupe</p>
+                    <label class="switch">
+                        <input type="checkbox" id="ButtonToggleGroupFountains" onclick="handleClickToggleGroupFountains()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="tool-option">
                     <p class="tool-text">Montrer tout</p>
                     <label class="switch">
                         <input type="checkbox" id="ButtonShowAll" onclick="handleClickShowAll()">

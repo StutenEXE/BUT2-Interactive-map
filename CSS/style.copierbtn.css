@@ -24,8 +24,6 @@
     display: none;
 }
 #copy:checked + #copy-btn:after {
-    content: "Copied!";
-    /* position: absolute; */
     top: 0;
     left: 0;
     right: 0;
