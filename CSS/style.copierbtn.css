@@ -1,0 +1,34 @@
+#copy-btn {
+    position: relative;
+    width: 150px;
+    height: 27px;
+    padding: 5px 0px;
+    border-radius: 20px;
+    background: var(--bgColor);
+    cursor:pointer;
+    transition: transform ease .15s;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#copy-btn:hover  {
+    transform:scale(0.98);
+}
+#copy-btn:active {
+    transform:scale(0.95);
+    background: var(--darkColor);
+}
+#copy {
+    display: none;
+}
+#copy:checked + #copy-btn:after {
+    content: "Copied!";
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--textColor);
+}
