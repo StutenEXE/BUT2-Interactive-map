@@ -30,15 +30,19 @@
     </head>
     <body>
         <header>
-            <h1>Bienvenue - <?php echo $pseudo ?></h1>
-            <div>
-                <a href="./params.page.php">Parametres</a>
-                <a href="./login.page.php">Deconnexion</a>
+            <h1>Bienvenue <?php echo $pseudo ?> !</h1>
+            <div class="header-options">
+                <a class="header-option" href="./params.page.php">
+                    Parametres <img class="icon" src="./images/params.png">
+                </a>
+                <a class="header-option" href="./login.page.php">
+                    Deconnexion <img class="icon" src="./images/logout.png">
+                </a>
             </div>
         </header>
 
         <div id="MapContainer">
-            <img class="close-button" id="ToggleToolbar" src="./images/cross-black.png" onclick="handleToggleToolbox()" alt="toggleToolbar">  
+            <img class="icon" id="ToggleToolbar" src="./images/cross-black.png" onclick="handleToggleToolbox()" alt="toggleToolbar">  
             <div id="Toolbar" class="thin-scrollbar">
                 <div class="tool-option first-tool-option">
                     <p class="tool-text">Fontaines disponibles</p>
@@ -93,7 +97,7 @@
             <img id="QuestionMark" src="images/questionmark.png" onclick="handleShowInformation()" alt="information">
 
             <div id="InformationText">
-                <img class="close-button" id="CloseInfoText" src="images/cross-white.png" onclick="handleCloseInformation()" alt="close">
+                <img class="icon" id="CloseInfoText" src="images/cross-white.png" onclick="handleCloseInformation()" alt="close">
                 <p>Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
                 des fontaines pour vos amis groupes.</p>
                 <p>Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 

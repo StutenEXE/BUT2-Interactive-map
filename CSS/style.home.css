@@ -104,12 +104,6 @@ footer {
     transition: 500ms;
 }
 
-.close-button {
-    cursor: pointer;
-    width: 20px;
-    margin: 5px;
-}
-
 #CloseInfoText {
     position: absolute;
     top: 0;
@@ -157,3 +151,21 @@ footer {
     background-color: var(--accentColor);
     border-width: 3px;
 }
+
+.header-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
+    text-decoration:none
+}
+
+
+
