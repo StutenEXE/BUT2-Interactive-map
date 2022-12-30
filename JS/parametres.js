@@ -7,7 +7,6 @@ let titreNomGroupe;
 $(document).ready(init);
 
 function init() {
-    console.log("init")
     aGroupe = $('#ID_Groupe').text() != "";
 
     quitterGroupeBtn = $('#FormQuitterGroupe');
@@ -22,7 +21,6 @@ function refreshGroupe() {
         type: 'GET',
         dataType: 'json',
         success: (data) => {
-            console.log(data)
             if (data.exist) {
                 titreNomGroupe.text(data.groupe.Nom);
                 quitterGroupeBtn.prop('disabled', false);
@@ -41,9 +39,5 @@ function copyCodeToClipboard() {
         fallbackCopyTextToClipboard(code);
         return;
     }
-    navigator.clipboard.writeText(code).then(function() {
-        console.log('Async: Copying to clipboard was successful!');
-      }, function(err) {
-        console.error('Async: Could not copy text: ', err);
-      });
+    navigator.clipboard.writeText(code);
 }

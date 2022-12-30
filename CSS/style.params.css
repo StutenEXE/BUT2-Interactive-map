@@ -1,7 +1,6 @@
 .container {
     flex-direction: column !important;
 } 
-  
 
 .button-form {
     display: flex;
@@ -38,6 +37,11 @@
     align-items: center;
     padding: 25px;
 }
+
+.first-text-form {
+    padding-top: 0px !important;
+}
+
 
 .form {
     display: flex;
@@ -104,6 +108,10 @@ button {
 
 .text-form:not(.first-text-form) {
     border-top: 1px solid black;
+}
+
+#TitreNomGroupe {
+    text-align: center;
 }
 
 @media screen and (max-width: 420px) {

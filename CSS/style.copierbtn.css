@@ -6,7 +6,7 @@
     border-radius: 20px;
     background: var(--bgColor);
     cursor:pointer;
-    transition: transform ease .15s;
+    transition: transform ease 300ms;
     display: flex;
     flex-direction: row;
     justify-content: center;

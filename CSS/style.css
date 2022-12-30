@@ -51,6 +51,8 @@ h5 {
   padding: 3px;
   color: var(--bgColor);
   background-color: var(--errorBgColor);
+  text-align: center; 
+  /* margin: 15px 0px 5px 0px; */
 }
 
 input {

@@ -36,7 +36,7 @@
                 </form>
                 <div class="messageGroupe">
                     <p>Groupe actuel : </p>
-                    <h3 id="titreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
+                    <h3 id="TitreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
                 </div>
                 <!-- Formulaire de départ d'un groupe -->
                 <div class="slot" style="width:150px;">
@@ -55,33 +55,6 @@
                 <label id='copy-btn' onclick='copyCodeToClipboard()'>$groupeCode</label>
             </div>" : "";
             ?>
-            <!-- Formulaire de creation de groupe -->
-            <div class="text-form first-text-form">
-                <h3 class="form-title">Créer un groupe</h3>
-                <form class="form" id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
-                    <div class="fields">    
-                        <div class="input-field">
-                            Nom du groupe : <input name="nomGroupe" type="text">
-                        </div>
-                        <div class="input-field">
-                            Code du groupe : <input name="codeGroupe" type="text"> 
-                        </div>
-                    </div>
-                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
-                </form>
-            </div>
-            <!-- Formulaire d'intégration à un groupe -->
-            <div class="text-form">
-                <h3 class="form-title">Rejoindre un groupe</h3>
-                <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
-                    <div class="fields">     
-                        <div class="input-field">
-                            Code du groupe : <input name="codeGroupe" type="text"> 
-                        </div>
-                    </div>
-                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
-                </form>
-            </div>
             <!-- Messages d'erreur -->
             <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
             <?php
@@ -109,7 +82,34 @@
                     }
                 }
                 ?>
-                </p>
+            </p>
+            <!-- Formulaire de creation de groupe -->
+            <div class="text-form first-text-form">
+                <h3 class="form-title">Créer un groupe</h3>
+                <form class="form" id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
+                    <div class="fields">    
+                        <div class="input-field">
+                            Nom du groupe : <input name="nomGroupe" type="text">
+                        </div>
+                        <div class="input-field">
+                            Code du groupe : <input name="codeGroupe" type="text"> 
+                        </div>
+                    </div>
+                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
+                </form>
+            </div>
+            <!-- Formulaire d'intégration à un groupe -->
+            <div class="text-form">
+                <h3 class="form-title">Rejoindre un groupe</h3>
+                <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
+                    <div class="fields">     
+                        <div class="input-field">
+                            Code du groupe : <input name="codeGroupe" type="text"> 
+                        </div>
+                    </div>
+                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
+                </form>
+            </div>
 
             <div id="session-data" style="display:none;">
                 <span id="ID_User"><?php echo $userID ?></span>

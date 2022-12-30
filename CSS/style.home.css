@@ -167,5 +167,14 @@ footer {
     text-decoration:none
 }
 
+@media screen and (max-width: 420px) {
+    .header-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0px;
+    }
 
-
+    .header-option {
+        padding: 2px;
+    }
+}

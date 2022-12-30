@@ -11,7 +11,7 @@
 
 </head>
 <body>
-    <div class = "container">
+    <div class = "container thin-scrollbar">
         <img src="./images/eau_login.jpg"/>
         <form class="form-login" action="PHPScripts/signup.php" method="post">
             <h3>Créez un compte</h3>
