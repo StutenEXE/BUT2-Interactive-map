@@ -3,7 +3,7 @@
 }
 
 .container > form {
-    width: 55%;
+    width: 65%;
 }
 
 .form-login {
@@ -48,6 +48,7 @@
 
     .form-login {
         font-size: 15px;
+        gap: 15px;
     }
 
 

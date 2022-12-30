@@ -34,8 +34,11 @@
                     echo "Votre pseudo ou votre mot de passe est incorrect";
                 }
                 else if ($_GET["error"] == "erreurBD") {
-                    echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                   echo "Quelque chose n'a pas marché. Veuillez réessayer";
                 }
+                else {
+                    echo "Une erreur inconnue est survenue";
+                 }
             }
             ?>
             </p>

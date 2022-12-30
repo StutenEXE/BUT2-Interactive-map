@@ -33,10 +33,10 @@
             <h1>Bienvenue <?php echo $pseudo ?> !</h1>
             <div class="header-options">
                 <a class="header-option" href="./params.page.php">
-                    Parametres <img class="icon" src="./images/params.png">
+                    Paramètres <img class="icon" src="./images/params.png">
                 </a>
                 <a class="header-option" href="./login.page.php">
-                    Deconnexion <img class="icon" src="./images/logout.png">
+                    Déconnexion <img class="icon" src="./images/logout.png">
                 </a>
             </div>
         </header>

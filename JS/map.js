@@ -175,7 +175,7 @@ function putUserCircleMarker(showPos) {
         opacity: 0.3,
         fillColor: "#0000FF",
         fillOpacity: 1
-    }).addTo(map).bindPopup("User position");
+    }).addTo(map);
     if (showPos) map.setView(userPosition, 17);
 }
 
@@ -646,7 +646,7 @@ function handleClickToggleGroupFountains() {
 }
 
 function handleClickShowAll() {
-    showAvailable = showUnavailable = showDrank = showFriendsDrank = true;
+    showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = true;
     refreshButtonStatus();
     refreshMarkers();
 }

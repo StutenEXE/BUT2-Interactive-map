@@ -11,7 +11,7 @@
 
 </head>
 <body>
-    <div class = "container thin-scrollbar">
+    <div class = "container">
         <img src="./images/eau_login.jpg"/>
         <form class="form-login" action="PHPScripts/signup.php" method="post">
             <h3>Créez un compte</h3>
@@ -48,6 +48,9 @@
                 }
                 else if ($_GET["error"] == "erreurBD") {
                     echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                }
+                else {
+                    echo "Une erreur inconnue est survenue";
                 }
             }
             ?>

@@ -60,6 +60,7 @@
     cursor: pointer;
 
     font-weight: 600;
+    border: none;
 }
 .popup-btn {
     background-size: 200%;
