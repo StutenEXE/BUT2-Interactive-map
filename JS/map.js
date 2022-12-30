@@ -92,7 +92,8 @@ function init() {
 function setupMap() {
     map = L.map('Map', {
         center: COORD_CENTRE_PARIS,
-        zoom: 12
+        zoom: 12,
+        zoomControl: false
     });
 
     tiles = L.tileLayer(`https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}.png?access-token=${JAWG_TOKEN}`, {
@@ -668,8 +669,10 @@ function handleToggleToolbox() {
 
     if (toolbar.is(':visible')) {
         toolbar.hide()
+        button.attr("src","./images/menu-toolbar.png");
     }
     else {
-        toolbar.show()
+        toolbar.show();
+        button.attr("src"," ./images/cross-black.png");
     }
 }

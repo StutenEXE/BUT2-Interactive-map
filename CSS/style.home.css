@@ -130,12 +130,10 @@ footer {
 }
 
 #ToggleToolbar {
-
     z-index: 10;
     position: absolute;
     top: 0;
     left: 0;
-    filter: invert(360);
 }
 
 .tool-option {
