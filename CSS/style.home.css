@@ -65,7 +65,22 @@ footer {
     justify-content: flex-start;
 
     background-color: var(--toolbarBgColor);
+    overflow-y: scroll;
 }
+
+#Toolbar::-webkit-scrollbar {
+    width: 3px;
+}
+
+#Toolbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#Toolbar::-webkit-scrollbar-thumb {
+    background: var(--darkColor);
+    border-radius: 40px;
+}
+
 
 #QuestionMark {
     cursor: pointer;
@@ -102,13 +117,25 @@ footer {
     transition: 500ms;
 }
 
-#CloseInfoText {
+.close-button {
     cursor: pointer;
     width: 20px;
+    margin: 5px;
+}
+
+#CloseInfoText {
     position: absolute;
     top: 0;
     right: 0;
-    margin: 5px;
+}
+
+#ToggleToolbar {
+
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    filter: invert(360);
 }
 
 .tool-option {
@@ -116,9 +143,12 @@ footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid var(--darkColor);
     padding: 5px 0;
     width: 100%;
+}
+
+.tool-option:not(.first-tool-option) {
+    border-top: 1px solid var(--darkColor);
 }
 
 .tool-text {

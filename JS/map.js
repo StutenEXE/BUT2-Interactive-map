@@ -64,7 +64,7 @@ function Fontaine(fontaine) {
     this.geoJSONData = fontaine.Coords;
     this.disponible = fontaine.Disponible;
     this.rue = fontaine.Rue;
-    this.groupeID = fontaine.ID_Groupe == null;
+    this.monGroupe = fontaine.ID_Groupe != null;
     this.bu = fontaine.BuIci == 1;
     this.nombreAmisBus = fontaine.NbAmisBus;
 }
@@ -187,7 +187,6 @@ function getDataFontaines() {
             userID: userID,
         },
         success: (fontaines) => {
-            console.log(fontaines);
             for (fontaine of fontaines) {
                 arrond = getArrondPoint([fontaine.Coords.coordinates[1], fontaine.Coords.coordinates[0]]);
                 if (arrond != null) {
@@ -245,7 +244,7 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
-        console.log(fontainesData[arrond].data[idx].groupID);
+        console.log(fontainesData[arrond].data[idx].groupeID);
         if (showFriendsDrank && fontainesData[arrond].data[idx].nombreAmisBus > 0) {
             createFountainMarker(arrond, idx);
         }
@@ -258,7 +257,7 @@ function showFountainMarkersInArrond(arrond) {
         else if (showAvailable && fontainesData[arrond].data[idx].disponible){
             createFountainMarker(arrond, idx);
         }
-        else if (showGroupFountains && fontainesData[arrond].data[idx].groupID) {
+        else if (showGroupFountains && fontainesData[arrond].data[idx].monGroupe) {
             createFountainMarker(arrond, idx);
         }
         
@@ -318,7 +317,6 @@ function handleHoverOutArrondissement(event) {
 }
 
 function createNewFountain(event) {
-    console.log(groupID);
     if (groupID == "") {
         alert("Veuillez rejoindre un groupe pour ajouter des fontaines");
     }
@@ -341,7 +339,7 @@ function createNewFountain(event) {
 
                 $.ajax({
                     url: "./PHPScripts/fontaines/addFontaine.php",
-                    type: "GET",
+                    type: "POST",
                     data:  {
                         coordinates: geoPoint,   
                         disponible: true,
@@ -389,7 +387,7 @@ function createFountainMarkerText(marker, arrond, idx) {
                             <button class="popup-btn popup-btn-dispo" onclick="toggleDispoFontaine(${arrond}, ${idx})">
                                 Rendre ${fontaine.disponible ? "indisponible" : "disponible"}
                             </button>
-                            ${fontaine.groupeID ? "" : "<button class='popup-btn popup-btn-remove' onclick='removeFontaine(" + arrond + "," + idx + ")'>Supprimer</button>"}
+                            ${fontaine.monGroupe ? "<button class='popup-btn popup-btn-remove' onclick='removeFontaine(" + arrond + "," + idx + ")'>Supprimer</button>" : ""}
                         </div>
                     </div>`), {
         className: "popup"
@@ -402,7 +400,7 @@ function toggleDispoFontaine(arrond, idx) {
     let fontaine = fontainesData[arrond].data[idx];
     $.ajax({
         url: "./PHPScripts/fontaines/updateDispoFontaine.php",
-        type: "GET",
+        type: "POST",
         data: {
             fontaineID: fontaine.id
         },
@@ -414,11 +412,10 @@ function toggleDispoFontaine(arrond, idx) {
 }
 
 function toggleDrink(arrond, idx) {
-    console.log(userID + " " + groupID)
     let fontaine = fontainesData[arrond].data[idx];
     $.ajax({
         url: './PHPScripts/fontaines/updateFontaineBu.php',
-        type: 'GET',
+        type: 'POST',
         data: {
             fontaineID: fontaine.id
         },
@@ -565,7 +562,7 @@ function deleteCurrentRoute() {
 
 function handleCloseInformation() {
     $("#InformationText").hide();
-    $("#InformationText").css("opacity", 0)    
+    $("#InformationText").css("opacity", 0);   
 }
 
 function handleShowInformation() {
@@ -659,9 +656,20 @@ function removeFontaine(arrond, indexFontaine) {
         method: 'POST',
         data: { "fontaineID" : fontainesData[arrond].data[indexFontaine].id },
         success: (data) => {
-            console.log(data);
             fontainesData[arrond].data.splice(indexFontaine, 1);
             refreshMarkers();
         }
     });
+}
+
+function handleToggleToolbox() {
+    let toolbar = $("#Toolbar");
+    let button = $("#ToggleToolbar");
+
+    if (toolbar.is(':visible')) {
+        toolbar.hide()
+    }
+    else {
+        toolbar.show()
+    }
 }

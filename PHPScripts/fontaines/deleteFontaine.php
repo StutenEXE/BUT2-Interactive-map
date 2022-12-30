@@ -1,6 +1,5 @@
 <?php
     $fontaineID = isset($_POST['fontaineID']) ? $_POST['fontaineID'] : "";
-    echo $fontaineID;
     $fontaineID = intval($fontaineID);
 
     deleteFontaineBues($fontaineID);
@@ -14,7 +13,7 @@
         $commande->bindparam(':fontaineID', $fontaineID);
         
         try {
-            echo $commande->execute();
+            $commande->execute();
         }
         catch (PDOException $e) {
             header("Location: ../../home.page.php?error=erreurBD");
@@ -29,7 +28,7 @@
         $commande->bindparam(':fontaineID', $fontaineID);
         
         try {
-            echo $commande->execute();
+            $commande->execute();
             exit();
         }
         catch (PDOException $e) {

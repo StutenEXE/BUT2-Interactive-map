@@ -36,9 +36,10 @@
             </div>
         </header>
 
-        <div id="MapContainer">  
+        <div id="MapContainer">
+            <img class="close-button" id="ToggleToolbar" src="images/cross.png" onclick="handleToggleToolbox()" alt="toggleToolbar">  
             <div id="Toolbar">
-                <div class="tool-option">
+                <div class="tool-option first-tool-option">
                     <p class="tool-text">Fontaines disponibles</p>
                     <label class="switch">
                         <input type="checkbox" id="ButtonToggleMarkersDispo" onclick="handleClickToggleMarkersDispo()">
@@ -89,7 +90,7 @@
             <img id="QuestionMark" src="images/questionmark.png" onclick="handleShowInformation()" alt="information">
 
             <div id="InformationText">
-                <img id="CloseInfoText" src="images/cross.png" onclick="handleCloseInformation()" alt="close">
+                <img class="close-button" id="CloseInfoText" src="images/cross.png" onclick="handleCloseInformation()" alt="close">
                 <p>Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
                 des fontaines pour vos amis groupes.</p>
                 <p>Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 
