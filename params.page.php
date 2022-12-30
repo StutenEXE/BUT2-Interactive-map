@@ -25,94 +25,96 @@
 </head>
 <body>
     <div class="container">
-        <div class="button-form">
-            <!-- Formulaire pour quitter la page -->
-            <form id="FormQuitterPage" action="PHPScripts/groupes/quitterPageParams.php" method="post">
-                <button id="BtnRetour" type="submit" onclick="window.location.href='./home.page.php'">
-                    <img id="flech-back" src="./images/fleche-back.png"></img>
-                    Retour
-                </button>
-            </form>
-            <div class="messageGroupe">
-                <p>Groupe actuel : </p>
-                <h3 id="titreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
+        <div class="thin-scrollbar">
+            <div class="button-form">
+                <!-- Formulaire pour quitter la page -->
+                <form id="FormQuitterPage" action="PHPScripts/groupes/quitterPageParams.php" method="post">
+                    <button id="BtnRetour" type="submit" onclick="window.location.href='./home.page.php'">
+                        <img id="flech-back" src="./images/fleche-back.png"></img>
+                        Retour
+                    </button>
+                </form>
+                <div class="messageGroupe">
+                    <p>Groupe actuel : </p>
+                    <h3 id="titreNomGroupe"><?php echo $groupeName == null ? "Vous n'avez pas de groupe" : $groupeName ?></h3>
+                </div>
+                <!-- Formulaire de départ d'un groupe -->
+                <div class="slot" style="width:150px;">
+                <?php echo $groupeName != null ?
+                "<form id='FormQuitterGroupe' action='./PHPScripts/groupes/quitterGroupe.php'>
+                    <button id='BoutonQuitterGroupe' type='submit' onclick='refreshGroupe()'>Quitter groupe</button>
+                </form>" : "";
+                ?>
+                </div>
             </div>
-            <!-- Formulaire de départ d'un groupe -->
-            <div class="slot" style="width:150px;">
+            <!-- Bouton de copie du code de groupe -->
             <?php echo $groupeName != null ?
-            "<form id='FormQuitterGroupe' action='./PHPScripts/groupes/quitterGroupe.php'>
-                <button id='BoutonQuitterGroupe' type='submit' onclick='refreshGroupe()'>Quitter groupe</button>
-            </form>" : "";
+            "<div id='CopierCode'>
+                <p>Clique pour partager ton code de groupe</p>
+                <input type='checkbox' id='copy' />
+                <label id='copy-btn' onclick='copyCodeToClipboard()'>$groupeCode</label>
+            </div>" : "";
             ?>
+            <!-- Formulaire de creation de groupe -->
+            <div class="text-form first-text-form">
+                <h3 class="form-title">Créer un groupe</h3>
+                <form class="form" id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
+                    <div class="fields">    
+                        <div class="input-field">
+                            Nom du groupe : <input name="nomGroupe" type="text">
+                        </div>
+                        <div class="input-field">
+                            Code du groupe : <input name="codeGroupe" type="text"> 
+                        </div>
+                    </div>
+                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
+                </form>
             </div>
-        </div>
-        <!-- Bouton de copie du code de groupe -->
-        <?php echo $groupeName != null ?
-        "<div id='CopierCode'>
-            Clique pour partager ton code de groupe
-            <input type='checkbox' id='copy' />
-            <label id='copy-btn' onclick='copyCodeToClipboard()'>$groupeCode</label>
-        </div>" : "";
-        ?>
-        <!-- Formulaire de creation de groupe -->
-        <div class="text-form first-text-form">
-            <h3 class="form-title">Créer un groupe</h3>
-            <form class="form" id="FormCreerGroupe" action="./PHPScripts/groupes/creerGroupe.php" method="post">
-                <div class="fields">    
-                    <div class="input-field">
-                        Nom du groupe : <input name="nomGroupe" type="text">
+            <!-- Formulaire d'intégration à un groupe -->
+            <div class="text-form">
+                <h3 class="form-title">Rejoindre un groupe</h3>
+                <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
+                    <div class="fields">     
+                        <div class="input-field">
+                            Code du groupe : <input name="codeGroupe" type="text"> 
+                        </div>
                     </div>
-                    <div class="input-field">
-                        Code du groupe : <input name="codeGroupe" type="text"> 
-                    </div>
-                </div>
-                <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
-            </form>
-        </div>
-        <!-- Formulaire d'intégration à un groupe -->
-        <div class="text-form">
-            <h3 class="form-title">Rejoindre un groupe</h3>
-            <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
-                <div class="fields">     
-                    <div class="input-field">
-                        Code du groupe : <input name="codeGroupe" type="text"> 
-                    </div>
-                </div>
-                <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
-            </form>
-        </div>
-        <!-- Messages d'erreur -->
-        <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
-        <?php
-            if (isset($_GET["error"])) {
-                if ($_GET["error"] == "champVide") {
-                    echo "Veuillez renseigner tous les champs";
+                    <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
+                </form>
+            </div>
+            <!-- Messages d'erreur -->
+            <p class="error-message" style="display:<?php echo isset($_GET["error"]) ? "block" : "none"?>;" >
+            <?php
+                if (isset($_GET["error"])) {
+                    if ($_GET["error"] == "champVide") {
+                        echo "Veuillez renseigner tous les champs";
+                    }
+                    else if ($_GET["error"] == "codeInexistant")  {
+                        echo "Ce code de groupe n'existe pas";
+                    }
+                    else if ($_GET["error"] == "codePas5Chars") {
+                        echo "Le code du groupe doit faire 5 caractères";
+                    }
+                    else if ($_GET["error"] == "nomSup20Chars") {
+                        echo "Le nom du groupe doit de moins de 20 caractères";
+                    }
+                    else if ($_GET["error"] == "codeExisteDeja") {
+                        echo "Ce code de groupe est déjà pris";
+                    }
+                    else if ($_GET["error"] == "erreurBD") {
+                        echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                    }
+                    else {
+                        echo "Une erreur inconnue est survenue";
+                    }
                 }
-                else if ($_GET["error"] == "codeInexistant")  {
-                    echo "Ce code de groupe n'existe pas";
-                }
-                else if ($_GET["error"] == "codePas5Chars") {
-                    echo "Le code du groupe doit faire 5 caractères";
-                }
-                else if ($_GET["error"] == "nomSup20Chars") {
-                    echo "Le nom du groupe doit de moins de 20 caractères";
-                }
-                else if ($_GET["error"] == "codeExisteDeja") {
-                    echo "Ce code de groupe est déjà pris";
-                }
-                else if ($_GET["error"] == "erreurBD") {
-                    echo "Quelque chose n'a pas marché. Veuillez réessayer";
-                }
-                else {
-                    echo "Une erreur inconnue est survenue";
-                }
-            }
-            ?>
-            </p>
+                ?>
+                </p>
 
-        <div id="session-data" style="display:none;">
-            <span id="ID_User"><?php echo $userID ?></span>
-            <span id="ID_Groupe"><?php echo $groupeID ?></span>
+            <div id="session-data" style="display:none;">
+                <span id="ID_User"><?php echo $userID ?></span>
+                <span id="ID_Groupe"><?php echo $groupeID ?></span>
+            </div>
         </div>
     </div>
 </body>

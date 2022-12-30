@@ -12,7 +12,6 @@
 
 html,
 body {
-  height: 100vh;
   margin: 0;
   background-color: var(--bgColor);
   color: var(--textColor);
@@ -21,7 +20,7 @@ body {
 
 .container {
   background-color: var(--accentColor);
-  margin: 20px 50px;
+  margin: 5vh 50px;
   border-radius: 20px; 
   overflow: hidden;
 
@@ -29,6 +28,7 @@ body {
   flex-direction: row;
 
   max-height: 90vh;
+  overflow-y: hidden;
 } 
 
 .input-field {
@@ -85,6 +85,23 @@ input:focus{
 h2 {
   text-align: left;
   margin-bottom: 0;
+}
+
+.thin-scrollbar {
+  overflow-y: scroll;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+    width: 3px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--darkColor);
+    border-radius: 40px;
 }
 
 @media screen and (max-width: 420px) {

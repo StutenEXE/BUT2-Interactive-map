@@ -68,19 +68,6 @@ footer {
     overflow-y: scroll;
 }
 
-#Toolbar::-webkit-scrollbar {
-    width: 3px;
-}
-
-#Toolbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#Toolbar::-webkit-scrollbar-thumb {
-    background: var(--darkColor);
-    border-radius: 40px;
-}
-
 
 #QuestionMark {
     cursor: pointer;
@@ -169,10 +156,4 @@ footer {
 #ButtonRouting:hover {
     background-color: var(--accentColor);
     border-width: 3px;
-}
-
-@media screen and (max-width: 420px) {
-    .form-login {
-      font-size: 20px;
-    }
 }

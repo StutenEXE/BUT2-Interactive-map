@@ -39,7 +39,7 @@
 
         <div id="MapContainer">
             <img class="close-button" id="ToggleToolbar" src="./images/cross-black.png" onclick="handleToggleToolbox()" alt="toggleToolbar">  
-            <div id="Toolbar">
+            <div id="Toolbar" class="thin-scrollbar">
                 <div class="tool-option first-tool-option">
                     <p class="tool-text">Fontaines disponibles</p>
                     <label class="switch">
