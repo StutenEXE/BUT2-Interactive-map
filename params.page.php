@@ -28,7 +28,7 @@
         <div class="thin-scrollbar">
             <div class="button-form">
                 <!-- Formulaire pour quitter la page -->
-                <form id="FormQuitterPage" action="PHPScripts/groupes/quitterPageParams.php" method="post">
+                <form id="FormQuitterPage" action="./PHPScripts/quitterPageParams.php" method="post">
                     <button id="BtnRetour" type="submit" onclick="window.location.href='./home.page.php'">
                         <img id="flech-back" src="./images/fleche-back.png"></img>
                         Retour

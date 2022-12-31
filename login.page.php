@@ -13,7 +13,7 @@
 <body>
     <div class = "container">
         <img src="./images/eau_login.jpg"/>
-        <form class="form-login" action="PHPScripts/login.php" method="post">
+        <form class="form-login" action="./PHPScripts/utilisateurs/login.php" method="post">
             <h3>Connectez vous</h3>
             <div class="input-field">
                 Pseudo : <input name="pseudo" type="text">
