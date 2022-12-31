@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: row;
 
-  max-height: 90vh;
+  height: 90vh;
   overflow-y: hidden;
 } 
 

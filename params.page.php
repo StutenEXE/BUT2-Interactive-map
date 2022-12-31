@@ -50,7 +50,7 @@
             <!-- Bouton de copie du code de groupe -->
             <?php echo $groupeName != null ?
             "<div id='CopierCode'>
-                <p>Clique pour partager ton code de groupe</p>
+                <p>Clique pour copier ton code de groupe</p>
                 <input type='checkbox' id='copy' />
                 <label id='copy-btn' onclick='copyCodeToClipboard()'>$groupeCode</label>
             </div>" : "";
