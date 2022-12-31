@@ -245,7 +245,6 @@ function showFountainMarkersInArrond(arrond) {
     fontainesMarkers = [];
     if (arrond == null) arrond = 11;
     for (idx in fontainesData[arrond].data) {
-        console.log(fontainesData[arrond].data[idx].groupeID);
         if (showFriendsDrank && fontainesData[arrond].data[idx].nombreAmisBus > 0) {
             createFountainMarker(arrond, idx);
         }
@@ -349,7 +348,6 @@ function createNewFountain(event) {
                     },
                     dataType: 'json',
                     success: (fontaine) => {
-                        console.log(fontaine);
                         if (arrond != null) {
                             fontainesData[arrond].data.push((new Fontaine(fontaine)));
                             createFountainMarker(arrond, fontainesData[arrond].data.length - 1);

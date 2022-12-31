@@ -1,4 +1,4 @@
 <?php 
-    require("../updateSessionVar.php");
+    require("./updateSessionVar.php");
     putUserInSessionVar(NULL);
-    header("Location: ../../home.page.php");
+    header("Location: ../home.page.php");
