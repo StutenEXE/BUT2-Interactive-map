@@ -23,7 +23,7 @@
 
 	function verifUtilisateurInexistant($pseudo, $mdp, &$profil=array()) {
 		// Connextion a la BD ci-dessous
-		require("connectDB.php");
+		require("../connectDB.php");
 		$sql = "SELECT * FROM `utilisateur` where Pseudo=:pseudo and MDP=:mdp";
 			$commande = $pdo->prepare($sql);
 			$commande->bindparam(':pseudo', $pseudo);
