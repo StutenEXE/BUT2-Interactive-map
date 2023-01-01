@@ -8,29 +8,29 @@
 	$profil = array();
 
 	if (verifChampVide($pseudo, $mdp, $mdpVerif)) {
-		header("Location: ../signup.page.php?error=champVide");
+		header("Location: ../../signup.page.php?error=champVide");
 		exit();
 	}
 	if (verifPseudoInvalide($pseudo)) {
-		header("Location: ../signup.page.php?error=pseudoInvalide");
+		header("Location: ../../signup.page.php?error=pseudoInvalide");
 		exit();
 	}
 	if (verifPseudoExistant($pseudo, $profil)) {
-		header("Location: ../signup.page.php?error=pseudoExistant");
+		header("Location: ../../signup.page.php?error=pseudoExistant");
 		exit();
 	}
 	if (verifMdpInf8Chars($mdp)) {
-		header("Location: ../signup.page.php?error=mdpCourt");
+		header("Location: ../../signup.page.php?error=mdpCourt");
 		exit();
 	}
 	if (verifMdpVerifDifferent($mdp, $mdpVerif)) {
-		header("Location: ../signup.page.php?error=mdpInequivalents");
+		header("Location: ../../signup.page.php?error=mdpInequivalents");
 		exit();
 	}
 	
 	insertUtilisateur($pseudo, $mdp);
 	
-	header("Location:../home.page.php");
+	header("Location:../../home.page.php");
 	
 
 	function verifChampVide($pseudo, $mdp, $mdpVerif) {
@@ -43,7 +43,7 @@
 
 	function verifPseudoExistant($pseudo) {
 		// Connection a la BD ci-dessous
-		require("connectDB.php");
+		require("../connectDB.php");
 		$sql = "SELECT * FROM UTILISATEUR WHERE Pseudo=:pseudo";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
@@ -56,7 +56,7 @@
 			}
 		}
 		catch (PDOException $e) {
-			header("Location: ../signup.page.php?error=erreurBD");
+			header("Location: ../../signup.page.php?error=erreurBD");
 			exit();
 		}
 		if (count($resultat) > 0) {
@@ -74,7 +74,7 @@
 	}
 
     function insertUtilisateur($pseudo, $mdp) {
-        require("connectDB.php");
+        require("../connectDB.php");
         $sql = "INSERT INTO UTILISATEUR(ID,Pseudo,MDP,ID_Groupe) VALUES(NULL,:pseudo,:mdp,NULL)";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':pseudo', $pseudo);
@@ -83,16 +83,16 @@
         try {
 			$bool = $commande->execute();
 			if ($bool) {
-				require("./updateSessionVar.php");
+				require("../updateSessionVar.php");
 				putUserInSessionVar(intval($pdo->lastInsertId()));
 			}
 			else {
-				header("Location: ../signup.page.php?error=unknown");
+				header("Location: ../../signup.page.php?error=unknown");
 				exit();
 			}
 		}
 		catch (PDOException $e) {
-			header("Location: ../signup.page.php?error=erreurBD");
+			header("Location: ../../signup.page.php?error=erreurBD");
 			exit();
 		}
     }
