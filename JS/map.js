@@ -336,7 +336,7 @@ function createNewFountain(event) {
 
                 voie = result.address.Match_addr.split(",")[0] != null ?
                     result.address.Match_addr.split(",")[0] : result.address.Match_addr;
-
+                    
                 $.ajax({
                     url: "./PHPScripts/fontaines/addFontaine.php",
                     type: "POST",
@@ -344,10 +344,11 @@ function createNewFountain(event) {
                         coordinates: geoPoint,   
                         disponible: true,
                         rue: voie,
-                        groupeID: $("#ID_Groupe").text()
+                        groupeID: groupID
                     },
                     dataType: 'json',
                     success: (fontaine) => {
+                        console.log(fontaine)
                         if (arrond != null) {
                             fontainesData[arrond].data.push((new Fontaine(fontaine)));
                             createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
