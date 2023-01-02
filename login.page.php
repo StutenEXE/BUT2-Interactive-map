@@ -13,7 +13,7 @@
 <body>
     <div class = "container">
         <img src="./images/eau_login.jpg"/>
-        <form class="form-login" action="PHPScripts/login.php" method="post">
+        <form class="form-login" action="./PHPScripts/utilisateurs/login.php" method="post">
             <h3>Connectez vous</h3>
             <div class="input-field">
                 Pseudo : <input name="pseudo" type="text">
@@ -34,8 +34,11 @@
                     echo "Votre pseudo ou votre mot de passe est incorrect";
                 }
                 else if ($_GET["error"] == "erreurBD") {
-                    echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                   echo "Quelque chose n'a pas marché. Veuillez réessayer";
                 }
+                else {
+                    echo "Une erreur inconnue est survenue";
+                 }
             }
             ?>
             </p>

@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $fontaineID = isset($_GET['fontaineID']) ? $_GET['fontaineID'] : "";
+    $fontaineID = isset($_POST['fontaineID']) ? $_POST['fontaineID'] : "";
 
     $fontaineID = intval($fontaineID);
     

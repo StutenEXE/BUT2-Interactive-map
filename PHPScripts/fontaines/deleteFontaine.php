@@ -1,6 +1,5 @@
 <?php
     $fontaineID = isset($_POST['fontaineID']) ? $_POST['fontaineID'] : "";
-
     $fontaineID = intval($fontaineID);
 
     deleteFontaineBues($fontaineID);
@@ -15,7 +14,6 @@
         
         try {
             $commande->execute();
-            exit();
         }
         catch (PDOException $e) {
             header("Location: ../../home.page.php?error=erreurBD");
@@ -25,7 +23,7 @@
 
     function deleteFontaine($fontaineID) {
         require("../connectDB.php");
-        $sql = "DELETE FROM FONTAINES_BUES WHERE ID=:fontaineID";
+        $sql = "DELETE FROM FONTAINE WHERE ID=:fontaineID";
         $commande = $pdo->prepare($sql);
         $commande->bindparam(':fontaineID', $fontaineID);
         

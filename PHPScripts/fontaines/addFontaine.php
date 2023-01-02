@@ -5,12 +5,10 @@
         return $geom->out('json');
     }
 
-
-    $coords = isset($_GET['coordinates']) ? $_GET['coordinates'] : "";
-    $disponible = isset($_GET['disponible']) ? $_GET['disponible'] : "";
-    $rue = isset($_GET['rue']) ? $_GET['rue'] : "";
-    $groupeID = isset($_GET['groupeID']) ? isset($_GET['groupeID']) : "";
- 
+    $coords = isset($_POST['coordinates']) ? $_POST['coordinates'] : "";
+    $disponible = isset($_POST['disponible']) ? $_POST['disponible'] : "";
+    $rue = isset($_POST['rue']) ? $_POST['rue'] : "";
+    $groupeID = isset($_POST['groupeID']) ? $_POST['groupeID'] : "";   
 
     $coords = array_map('floatval', $coords);
     $disponible = filter_var($disponible, FILTER_VALIDATE_BOOLEAN);

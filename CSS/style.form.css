@@ -1,0 +1,58 @@
+.container > img {
+    width: 35%;
+}
+
+.container > form {
+    width: 65%;
+}
+
+.form-login {
+    display: flex;
+    flex-direction: column;
+    padding: 0 25px;
+    gap: 25px;
+}
+
+.input-field {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.submit-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.submit{
+    height: 40px;
+}
+
+@media screen and (max-width: 600px)  {
+    .container {
+        flex-direction: column;
+        height: 600px;
+    } 
+
+    .container > img {
+        width: auto;
+        height: 35%;
+    }
+
+    .container > form {
+        width: auto;
+        height: 65%;
+    }
+
+    .form-login {
+        font-size: 15px;
+        gap: 15px;
+    }
+
+
+    .input-field > input {
+        width: 100px;
+    }
+}

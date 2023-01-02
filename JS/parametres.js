@@ -7,7 +7,6 @@ let titreNomGroupe;
 $(document).ready(init);
 
 function init() {
-    console.log("init")
     aGroupe = $('#ID_Groupe').text() != "";
 
     quitterGroupeBtn = $('#FormQuitterGroupe');
@@ -22,7 +21,6 @@ function refreshGroupe() {
         type: 'GET',
         dataType: 'json',
         success: (data) => {
-            console.log(data)
             if (data.exist) {
                 titreNomGroupe.text(data.groupe.Nom);
                 quitterGroupeBtn.prop('disabled', false);
@@ -33,4 +31,13 @@ function refreshGroupe() {
             }
         }
     })
+}
+
+function copyCodeToClipboard() {
+    code = $('#copy-btn').text();
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(code);
+        return;
+    }
+    navigator.clipboard.writeText(code);
 }

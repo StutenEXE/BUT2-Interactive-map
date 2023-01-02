@@ -13,7 +13,7 @@
 <body>
     <div class = "container">
         <img src="./images/eau_login.jpg"/>
-        <form class="form-login" action="PHPScripts/signup.php" method="post">
+        <form class="form-login" action="./PHPScripts/utilisateurs/signup.php" method="post">
             <h3>Créez un compte</h3>
 
             <div class="input-field">
@@ -48,6 +48,9 @@
                 }
                 else if ($_GET["error"] == "erreurBD") {
                     echo "Quelque chose n'a pas marché. Veuillez réessayer";
+                }
+                else {
+                    echo "Une erreur inconnue est survenue";
                 }
             }
             ?>

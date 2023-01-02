@@ -7,15 +7,15 @@
 	$profil = array();
 
 	if (verifChampVide($pseudo, $mdp)) {
-		header("Location: ../login.page.php?error=champVide");
+		header("Location: ../../login.page.php?error=champVide");
 		exit();
 	}
 	if  (verifUtilisateurInexistant($pseudo, $mdp, $profil)) {
-		header("Location: ../login.page.php?error=informationserronees");
+		header("Location: ../../login.page.php?error=informationserronees");
 		exit();
 	}
 
-	header("Location: ../home.page.php");
+	header("Location: ../../home.page.php");
 
 	function verifChampVide($pseudo, $mdp) {
 		return $pseudo === '' || $mdp === '';
@@ -23,7 +23,7 @@
 
 	function verifUtilisateurInexistant($pseudo, $mdp, &$profil=array()) {
 		// Connextion a la BD ci-dessous
-		require("connectDB.php");
+		require("../connectDB.php");
 		$sql = "SELECT * FROM `utilisateur` where Pseudo=:pseudo and MDP=:mdp";
 			$commande = $pdo->prepare($sql);
 			$commande->bindparam(':pseudo', $pseudo);
@@ -39,7 +39,7 @@
 		}
 
 		catch (PDOException $e) {
-			header("Location: ../signup.page.php?error=erreurBD");
+			header("Location: ../../signup.page.php?error=erreurBD");
 			exit();
 		}
 
@@ -48,7 +48,7 @@
 		
 		}
 
-		require("./updateSessionVar.php");
+		require("../updateSessionVar.php");
 		putUserInSessionVar(intval($resultat[0]['ID']));
 		return false;
 	}

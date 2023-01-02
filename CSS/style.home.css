@@ -26,6 +26,7 @@ footer {
 
 #Map {
     z-index: 1;
+    width: 100%;
 }
 
 #MapContainer {
@@ -63,11 +64,11 @@ footer {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* align-items: center; */
-    /* gap: 10px; */
 
     background-color: var(--toolbarBgColor);
+    overflow-y: scroll;
 }
+
 
 #QuestionMark {
     cursor: pointer;
@@ -105,12 +106,16 @@ footer {
 }
 
 #CloseInfoText {
-    cursor: pointer;
-    width: 20px;
     position: absolute;
     top: 0;
     right: 0;
-    margin: 5px;
+}
+
+#ToggleToolbar {
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .tool-option {
@@ -118,9 +123,12 @@ footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid var(--darkColor);
     padding: 5px 0;
     width: 100%;
+}
+
+.tool-option:not(.first-tool-option) {
+    border-top: 1px solid var(--darkColor);
 }
 
 .tool-text {
@@ -143,4 +151,31 @@ footer {
 #ButtonRouting:hover {
     background-color: var(--accentColor);
     border-width: 3px;
+}
+
+.header-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
+    text-decoration:none
+}
+
+@media screen and (max-width: 420px) {
+    .header-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0px;
+    }
+
+    .header-option {
+        padding: 2px;
+    }
 }

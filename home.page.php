@@ -3,6 +3,7 @@
     $userID = isset($_SESSION['profil']['ID']) ? $_SESSION['profil']['ID'] : header("Location: ./login.page.php");
     $pseudo = $_SESSION['profil']['Pseudo'];
     $groupeID = isset($_SESSION['profil']['ID_Groupe']) ? $_SESSION['profil']['ID_Groupe'] : "";
+    $groupeName = $_SESSION['profil']['NomGroupe'];
 ?>
 
 <!DOCTYPE html>
@@ -29,16 +30,21 @@
     </head>
     <body>
         <header>
-            <h1>Bienvenue - <?php echo $pseudo ?></h1>
-            <div>
-                <a href="./params.page.php">Parametres</a>
-                <a href="./login.page.php">Deconnexion</a>
+            <h1>Bienvenue <?php echo $pseudo ?> !</h1>
+            <div class="header-options">
+                <a class="header-option" href="./params.page.php">
+                    Paramètres <img class="icon" src="./images/params.png">
+                </a>
+                <a class="header-option" href="./login.page.php">
+                    Déconnexion <img class="icon" src="./images/logout.png">
+                </a>
             </div>
         </header>
 
-        <div id="MapContainer">  
-            <div id="Toolbar">
-                <div class="tool-option">
+        <div id="MapContainer">
+            <img class="icon" id="ToggleToolbar" src="./images/cross-black.png" onclick="handleToggleToolbox()" alt="toggleToolbar">  
+            <div id="Toolbar" class="thin-scrollbar">
+                <div class="tool-option first-tool-option">
                     <p class="tool-text">Fontaines disponibles</p>
                     <label class="switch">
                         <input type="checkbox" id="ButtonToggleMarkersDispo" onclick="handleClickToggleMarkersDispo()">
@@ -59,13 +65,22 @@
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <div class="tool-option">
-                    <p class="tool-text">Fontaines auxquelles mes amis ont bu</p>
-                    <label class="switch">
-                        <input type="checkbox" id="ButtonToggleMarkersFriendsDrank" onclick="handleClickToggleDrankFriends()">
-                        <span class="slider round"></span>
+                <?php echo $groupeID != "" ?
+                "<div class='tool-option'>
+                    <p class='tool-text'>Fontaines auxquelles mes amis ont bu</p>
+                    <label class='switch'>
+                        <input type='checkbox' id='ButtonToggleMarkersFriendsDrank' onclick='handleClickToggleDrankFriends()'>
+                        <span class='slider round'></span>
                     </label>
                 </div>
+                <div class='tool-option'>
+                    <p class='tool-text'>Fontaines de mon groupe - ($groupeName)</p>
+                    <label class='switch'>
+                        <input type='checkbox' id='ButtonToggleGroupFountains' onclick='handleClickToggleGroupFountains()'>
+                        <span class='slider round'></span>
+                    </label>
+                </div>" : "";
+                ?>
                 <div class="tool-option">
                     <p class="tool-text">Montrer tout</p>
                     <label class="switch">
@@ -82,7 +97,7 @@
             <img id="QuestionMark" src="images/questionmark.png" onclick="handleShowInformation()" alt="information">
 
             <div id="InformationText">
-                <img id="CloseInfoText" src="images/cross.png" onclick="handleCloseInformation()" alt="close">
+                <img class="icon" id="CloseInfoText" src="images/cross-white.png" onclick="handleCloseInformation()" alt="close">
                 <p>Ce site recense toutes les fontaines dans Paris et vous permet d'ajouter 
                 des fontaines pour vos amis groupes.</p>
                 <p>Pour ajouter une fontaine, double-cliquez sur la carte. Cette fontaine 

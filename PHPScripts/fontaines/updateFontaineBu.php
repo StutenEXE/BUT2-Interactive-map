@@ -1,7 +1,7 @@
 <?php
     session_start();
     $userID = $_SESSION['profil']['ID'];
-    $fontaineID = isset($_GET['fontaineID']) ? $_GET['fontaineID'] : "";
+    $fontaineID = isset($_POST['fontaineID']) ? $_POST['fontaineID'] : "";
 
     $userID = intval($userID);
     $fontaineID = intval($fontaineID);
