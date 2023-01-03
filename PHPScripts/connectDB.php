@@ -13,8 +13,4 @@
     catch (PDOException $e) {
         die  ("Echec de connexion : " . $e->getMessage() . "\n");
     }
-
-    // Lignes pour tester la connection
-    // $ok = 'connexion ok';
-    // die ($ok); 
 ?>

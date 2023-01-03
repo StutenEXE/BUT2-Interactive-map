@@ -348,7 +348,6 @@ function createNewFountain(event) {
                     },
                     dataType: 'json',
                     success: (fontaine) => {
-                        console.log(fontaine)
                         if (arrond != null) {
                             fontainesData[arrond].data.push((new Fontaine(fontaine)));
                             createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
