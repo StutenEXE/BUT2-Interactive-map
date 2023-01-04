@@ -348,7 +348,6 @@ function createNewFountain(event) {
                     },
                     dataType: 'json',
                     success: (fontaine) => {
-                        console.log(fontaine)
                         if (arrond != null) {
                             fontainesData[arrond].data.push((new Fontaine(fontaine)));
                             createFountainMarker(arrond, fontainesData[arrond].data.length - 1);
@@ -645,7 +644,12 @@ function handleClickToggleGroupFountains() {
 }
 
 function handleClickShowAll() {
-    showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = true;
+    if (showAvailable && showUnavailable && showDrank && showFriendsDrank && showGroupFountains) {
+        showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = false;
+    }
+    else {
+        showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = true;
+    }
     refreshButtonStatus();
     refreshMarkers();
 }
