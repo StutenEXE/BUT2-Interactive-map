@@ -92,7 +92,7 @@
                             Nom du groupe : <input name="nomGroupe" type="text">
                         </div>
                         <div class="input-field">
-                            Code du groupe : <input name="codeGroupe" type="text"> 
+                            Code du groupe : <input name="codeGroupe" type="text" minlength="5" maxlength="5"> 
                         </div>
                     </div>
                     <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>
@@ -104,7 +104,7 @@
                 <form class="form" id="FormRejoindreGroupe" action="./PHPScripts/groupes/rejoindreGroupe.php" method="post">
                     <div class="fields">     
                         <div class="input-field">
-                            Code du groupe : <input name="codeGroupe" type="text"> 
+                            Code du groupe : <input name="codeGroupe" type="text" minlength="5" maxlength="5"> 
                         </div>
                     </div>
                     <button class="submit" type="submit" onclick="refreshGroupe()"> Soumettre </button>

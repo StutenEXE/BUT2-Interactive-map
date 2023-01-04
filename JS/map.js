@@ -644,7 +644,12 @@ function handleClickToggleGroupFountains() {
 }
 
 function handleClickShowAll() {
-    showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = true;
+    if (showAvailable && showUnavailable && showDrank && showFriendsDrank && showGroupFountains) {
+        showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = false;
+    }
+    else {
+        showAvailable = showUnavailable = showDrank = showFriendsDrank = showGroupFountains = true;
+    }
     refreshButtonStatus();
     refreshMarkers();
 }
